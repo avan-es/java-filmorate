@@ -4,8 +4,11 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.Duration;
 import java.time.LocalDate;
 
@@ -13,12 +16,13 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class Film {
+    @PositiveOrZero
     private int id;
-    @NonNull
+    @NotNull @NotBlank
     private String name;
     @Builder.Default
     private String description = "Описание не было заполнено!";
-    @NonNull
+    @PastOrPresent
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;

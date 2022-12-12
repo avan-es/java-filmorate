@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 @RequestMapping("/films")
 public class FilmController {
     private final HashMap<Integer, Film> films = new HashMap<>();
-    //private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private int idFilmGenerator = 1;
     private final LocalDate FILMS_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
@@ -25,7 +25,7 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody Film film){
+    public Film addFilm(@Valid @RequestBody Film film){
         Film validFilm = filmValidation(film);
         validFilm.setId(idFilmGenerator);
         films.put(idFilmGenerator++, validFilm);
@@ -33,7 +33,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film){
+    public Film updateFilm(@Valid @RequestBody Film film){
         if (!films.containsKey(film.getId())) {
             throw new FilmValidationException("Фильма с таким ID (" + film.getId() +
                     ") не найден.");

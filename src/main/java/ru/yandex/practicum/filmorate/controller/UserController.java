@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 @RequestMapping("/users")
 public class UserController {
     private final HashMap<Integer, User> users = new HashMap<>();
-    //private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     private int idUserGenerator = 1;
 
@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user){
+    public User addUser(@Valid @RequestBody User user){
         User validUser = userValidation(user);
         validUser.setId(idUserGenerator);
         users.put(idUserGenerator++, validUser);
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user){
+    public User updateUser(@Valid @RequestBody User user){
         if (!users.containsKey(user.getId())) {
             throw new UserValidationException("Пользователь с таким ID (" + user.getId() +
                     ") не найден.");
