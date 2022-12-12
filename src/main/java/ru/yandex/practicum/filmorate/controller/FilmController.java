@@ -15,13 +15,12 @@ import java.util.HashMap;
 @RequestMapping("/films")
 public class FilmController {
     private final HashMap<Integer, Film> films = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    //private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private int idFilmGenerator = 1;
     private final LocalDate FILMS_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        log.info("Получен GET запрос к films");
         return films.values();
     }
 
@@ -36,7 +35,7 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@RequestBody Film film){
         if (!films.containsKey(film.getId())) {
-            throw new FilmNonExist("Фильма с таким ID (" + film.getId() +
+            throw new FilmValidationException("Фильма с таким ID (" + film.getId() +
                     ") не найден.");
         }
         Film validFilm = filmValidation(film);
@@ -47,17 +46,17 @@ public class FilmController {
     private Film filmValidation (Film film){
         if (film.getName().isEmpty() ||
                 film.getName().isBlank()) {
-            throw new InvalidNameException("Название фильма не может быть пустым.");
+            throw new FilmValidationException("Название фильма не может быть пустым.");
         }
         if (film.getDescription().length() > 200) {
-            throw  new InvalidDescriptionSize("Максимальная длина описания для фильма — 200 символов.");
+            throw  new FilmValidationException("Максимальная длина описания для фильма — 200 символов.");
         }
         if (film.getReleaseDate().isBefore(FILMS_BIRTHDAY) ||
                 film.getReleaseDate().isAfter(LocalDate.now())) {
-            throw new InvalidReleaseDate("Дата релиза введена не корректно.");
+            throw new FilmValidationException("Дата релиза введена не корректно.");
         }
         if (film.getDuration() <= 0) {
-            throw new InvalidDuration("Продолжительность фильма должна быть положительной.");
+            throw new FilmValidationException("Продолжительность фильма должна быть положительной.");
         }
         return film;
     }
