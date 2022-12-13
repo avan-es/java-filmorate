@@ -26,7 +26,11 @@ class FilmControllerTest {
     @Test
     @DisplayName("Название фильма не может быть пустым")
     public void shouldReturnExceptionOnEmptyName () throws RuntimeException {
-        Film film = new Film(1,"","Some description", LocalDate.of(2020, Month.DECEMBER,1),150);
+        Film film = Film.builder()
+                .id(1).name("")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
+                .duration(150).build();
         Throwable thrown = assertThrows(RuntimeException.class, () -> {
             filmController.addFilm(film);
         });
@@ -37,9 +41,11 @@ class FilmControllerTest {
     @Test
     @DisplayName("Максимальная длина описания для фильма — 200 символов")
     public void shouldReturnExceptionOnLongDescription () throws RuntimeException {
-        Film film = new Film(1,"Some name",
-                "Some description that equals 201 char very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-description..",
-                LocalDate.of(2020, Month.DECEMBER,1),150);
+        Film film = Film.builder()
+                .id(1).name("Some name")
+                .description("Some description that equals 201 char very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-description..")
+                .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
+                .duration(150).build();
         Throwable thrown = assertThrows(RuntimeException.class, () -> {
             filmController.addFilm(film);
         });
@@ -50,8 +56,11 @@ class FilmControllerTest {
     @Test
     @DisplayName("Дата релиза — не раньше 28 декабря 1895 года")
     public void shouldReturnExceptionOnDateBeforeMoveWasFound () throws RuntimeException {
-        Film film = new Film(1,"Some name",
-                "Some description", LocalDate.of(1895, Month.DECEMBER,27),150);
+        Film film = Film.builder()
+                .id(1).name("Some name")
+                .description("Some description")
+                .releaseDate(LocalDate.of(1895, Month.DECEMBER,27))
+                .duration(150).build();
         Throwable thrown = assertThrows(RuntimeException.class, () -> {
             filmController.addFilm(film);
         });
@@ -62,13 +71,19 @@ class FilmControllerTest {
     @Test
     @DisplayName("Продолжительность фильма должна быть положительной")
     public void shouldReturnExceptionOnNegativeOrZeroDurationFilm () throws RuntimeException {
-        Film filmWithZeroDuration = new Film(1,"Some name",
-                "Some description", LocalDate.of(2020, Month.DECEMBER,27),0);
+        Film filmWithZeroDuration = Film.builder()
+                .id(1).name("Some description")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
+                .duration(0).build();
         Throwable thrownForFilmWithZeroDuration = assertThrows(RuntimeException.class, () -> {
             filmController.addFilm(filmWithZeroDuration);
         });
-        Film filmWithNegativeDuration = new Film(1,"Some name",
-                "Some description", LocalDate.of(2020, Month.DECEMBER,27),-150);
+        Film filmWithNegativeDuration = Film.builder()
+                .id(1).name("Some description")
+                .description("Some description")
+                .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
+                .duration(-150).build();
         Throwable thrownForFilmWithNegativeDuration = assertThrows(RuntimeException.class, () -> {
             filmController.addFilm(filmWithNegativeDuration);
         });
@@ -78,7 +93,6 @@ class FilmControllerTest {
                 () -> assertEquals("Продолжительность фильма должна быть положительной.", thrownForFilmWithNegativeDuration.getMessage(),
                         "Ожидалась ошибка валидации продолжительности фильма.")
         );
-
     }
 
 }
