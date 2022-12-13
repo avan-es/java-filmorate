@@ -91,7 +91,7 @@ class UserControllerTest {
                 .email("bagrat@Mail.ru")
                 .login("Avan")
                 .name("Bagrat")
-                .birthday(LocalDate.of(2023, Month.SEPTEMBER, 4))
+                .birthday(LocalDate.now().plusDays(1))
                 .build();
         Throwable thrown = assertThrows(RuntimeException.class, () -> {
             userController.addUser(user);
