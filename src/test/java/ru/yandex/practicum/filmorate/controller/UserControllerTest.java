@@ -14,10 +14,10 @@ class UserControllerTest {
 
     UserController userController;
 
-    @BeforeEach
-    void setUp() {
-        userController = new UserController();
-    }
+//    @BeforeEach
+//    void setUp() {
+//        userController = new UserController();
+//    }
 
     @Test
     @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
