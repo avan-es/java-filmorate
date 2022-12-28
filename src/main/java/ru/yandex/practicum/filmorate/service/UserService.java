@@ -54,4 +54,22 @@ public class UserService {
                 .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
     return friends;
     }
+
+    public Map<Integer, User> getCommonFriends(Integer id, Integer otherId) {
+        Map<Integer, User> friendsForFirst = new HashMap<>();
+        friendsForFirst = userStorage.getUser(id).getFriends()
+                .stream()
+                .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
+        Map<Integer, User> friendsForSecond = new HashMap<>();
+        friendsForSecond = userStorage.getUser(id).getFriends()
+                .stream()
+                .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
+        Map<Integer, User> commonFriends = new HashMap<>();
+        for (Integer idCommon: friendsForFirst.keySet()) {
+            if (friendsForSecond.containsKey(idCommon)){
+                commonFriends.put(idCommon, friendsForFirst.get(idCommon));
+            }
+        }
+        return commonFriends;
+    }
 }
