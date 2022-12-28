@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -19,7 +20,7 @@ import java.util.Set;
  * */
 @Builder
 public class Film {
-    private Set<Long> likes;
+    private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
     private int id;
     @NotNull @NotBlank

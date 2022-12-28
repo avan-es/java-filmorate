@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +31,27 @@ public class FilmService {
 
     public Film getFilmById(Integer id) {
         return filmStorage.getFilmById(id);
+    }
+
+    public void addLike(int id, int userId) {
+        filmStorage.getFilmById(id).getLikes().add(userId);
+        System.out.println("Hi");
+    }
+
+    public void deleteLike(int id, int userId) {
+        filmStorage.getFilmById(id).getLikes().remove(userId);
+    }
+
+    public Set<Film> getTopFilms(Integer count) {
+        Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
+            if (o1.getLikes().size() > o2.getLikes().size()) {
+                return -1;
+        } else {
+            return 1;
+        }
+    });
+        topFilms.addAll(filmStorage.getAllFilms().values());
+        System.out.println("HGi");
+        return topFilms;
     }
 }

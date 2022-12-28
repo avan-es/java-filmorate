@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.constance.Constance;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -31,6 +32,12 @@ public class FilmValidation {
             throw new FilmValidationException("Продолжительность фильма должна быть положительной.");
         }
         return film;
+    }
+
+    public void filmIdValidation(int id) {
+        if (!filmStorage.getAllFilms().containsKey(id)) {
+            throw new FilmValidationException("Фильм с ID: " + id +" не найден.");
+        }
     }
 
 }
