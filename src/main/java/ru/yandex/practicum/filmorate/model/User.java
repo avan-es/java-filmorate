@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 /**Позволяет генерировать геттеры, сеттеры, методы toString(), equals() и hashCode() и конструкторы
@@ -16,6 +16,8 @@ import java.time.LocalDate;
 @Builder
 //@RequiredArgsConstructor
 public class User {
+    //final позволяет исключить поле класса из видимости Builder - тогда id добавляются!
+    private final Set<Integer> friends = new HashSet<>();
     @PositiveOrZero
     private int id;
     @Email
