@@ -6,6 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.validation.FilmValidation;
+import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -14,10 +20,13 @@ class FilmControllerTest {
     FilmController filmController;
     private final static String FILM_DESCRIPTION_200_CHAR = "Some description that equals 200 char very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-description.";
 
-//    @BeforeEach
-//    void setUp(){
-//        filmController = new FilmController(filmController.inMemoryFilmStorage);
-//    }
+    @BeforeEach
+    void setUp(){
+        filmController = new FilmController(
+                new FilmService(new InMemoryFilmStorage()),
+                new FilmValidation(new InMemoryFilmStorage()),
+                new UserValidation(new InMemoryUserStorage()));
+    }
 
     @Test
     @DisplayName("Название фильма не может быть пустым")
