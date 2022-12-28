@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,6 @@ public class FilmService {
         }
     });
         topFilms.addAll(filmStorage.getAllFilms().values());
-        System.out.println("HGi");
-        return topFilms;
+        return topFilms.stream().limit(count).collect(Collectors.toSet());
     }
 }

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -34,7 +35,7 @@ public class UserValidation {
 
     public void userIdValidation(int id) {
         if (!userStorage.getAllUsers().containsKey(id)) {
-            throw new UserValidationException("Пользователь с ID: " + id +" не найден.");
+            throw new UserNotFoundException("Пользователь с ID: " + id +" не найден.");
         }
     }
 

@@ -29,6 +29,7 @@ public class UserController {
     //TZ 10
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {
+        userValidation.userIdValidation(id);
         return userService.getUserById(id);
     }
     //TZ 9

@@ -29,6 +29,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Film geFilmById(@PathVariable Integer id) {
+        filmValidation.filmIdValidation(id);
         return filmService.getFilmById(id);
     }
 

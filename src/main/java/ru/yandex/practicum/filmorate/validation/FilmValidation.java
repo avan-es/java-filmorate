@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.constance.Constance;
+import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -36,7 +37,7 @@ public class FilmValidation {
 
     public void filmIdValidation(int id) {
         if (!filmStorage.getAllFilms().containsKey(id)) {
-            throw new FilmValidationException("Фильм с ID: " + id +" не найден.");
+            throw new FilmNotFoundException("Фильм с ID: " + id +" не найден.");
         }
     }
 
