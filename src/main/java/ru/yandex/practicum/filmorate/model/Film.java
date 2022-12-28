@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 /**Позволяет генерировать геттеры, сеттеры, методы toString(), equals() и hashCode() и конструкторы
@@ -18,6 +19,7 @@ import java.time.LocalDate;
  * */
 @Builder
 public class Film {
+    private Set<Long> likes;
     @PositiveOrZero
     private int id;
     @NotNull @NotBlank
