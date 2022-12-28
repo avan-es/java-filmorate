@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -56,19 +58,11 @@ public class UserService {
     }
 
     public Map<Integer, User> getCommonFriends(Integer id, Integer otherId) {
-        Map<Integer, User> friendsForFirst = new HashMap<>();
-        friendsForFirst = userStorage.getUser(id).getFriends()
-                .stream()
-                .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
-        Map<Integer, User> friendsForSecond = new HashMap<>();
-        friendsForSecond = userStorage.getUser(id).getFriends()
-                .stream()
-                .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
+        Set<Integer> commonFriendsId = new HashSet<>(userStorage.getUser(id).getFriends());
+        commonFriendsId.retainAll(userStorage.getUser(otherId).getFriends());
         Map<Integer, User> commonFriends = new HashMap<>();
-        for (Integer idCommon: friendsForFirst.keySet()) {
-            if (friendsForSecond.containsKey(idCommon)){
-                commonFriends.put(idCommon, friendsForFirst.get(idCommon));
-            }
+        for (int userId : commonFriendsId) {
+            commonFriends.put(userId, userStorage.getUser(userId));
         }
         return commonFriends;
     }
