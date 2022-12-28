@@ -9,20 +9,19 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage{
 
     private final HashMap<Integer, Film> films = new HashMap<>();
     private int idFilmGenerator = 1;
-    private final LocalDate FILMS_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @Override
     public Film addFilm(Film film) {
-        Film validFilm = filmValidation(film);
-        validFilm.setId(idFilmGenerator);
-        films.put(idFilmGenerator++, validFilm);
-        return validFilm;
+        film.setId(idFilmGenerator);
+        films.put(idFilmGenerator++, film);
+        return film;
     }
 
     @Override
@@ -31,27 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage{
             throw new FilmValidationException("Фильма с таким ID (" + film.getId() +
                     ") не найден.");
         }
-        Film validFilm = filmValidation(film);
-        films.put(validFilm.getId(), validFilm);
-        return validFilm;
-    }
-
-    @Override
-    public Film filmValidation(Film film) {
-        if (film.getName().isEmpty() ||
-                film.getName().isBlank()) {
-            throw new FilmValidationException("Название фильма не может быть пустым.");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new FilmValidationException("Максимальная длина описания для фильма — 200 символов.");
-        }
-        if (film.getReleaseDate().isBefore(FILMS_BIRTHDAY) ||
-                film.getReleaseDate().isAfter(LocalDate.now())) {
-            throw new FilmValidationException("Дата релиза введена не корректно.");
-        }
-        if (film.getDuration() <= 0) {
-            throw new FilmValidationException("Продолжительность фильма должна быть положительной.");
-        }
+        films.put(film.getId(), film);
         return film;
     }
 
@@ -66,7 +45,12 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Collection<Film> getAllFilms() {
-        return films.values();
+    public Film getFilmById(Integer id) {
+        return films.get(id);
+    }
+
+    @Override
+    public Map<Integer, Film> getAllFilms() {
+        return films;
     }
 }
