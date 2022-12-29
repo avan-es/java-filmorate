@@ -67,10 +67,10 @@ public class UserController {
 
     //TZ 10
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         userValidation.userIdValidation(id);
         userValidation.userIdValidation(otherId);
-        return userService.getCommonFriends(id, otherId).values();
+        return userService.getCommonFriends(id, otherId);
     }
 
 }
