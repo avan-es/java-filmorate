@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor

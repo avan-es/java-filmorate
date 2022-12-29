@@ -14,7 +14,6 @@ import java.util.Set;
  * @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor
  * */
 @Builder
-//@RequiredArgsConstructor
 public class User {
     //final позволяет исключить поле класса из видимости Builder - тогда id добавляются!
     private final Set<Integer> friends = new HashSet<>();
