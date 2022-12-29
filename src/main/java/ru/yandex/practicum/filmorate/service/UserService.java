@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -48,12 +45,10 @@ public class UserService {
         userStorage.getUser(friendId).getFriends().remove(id);
     }
 
-    public Map<Integer, User> getUserFriends(Integer id) {
-        Map<Integer, User> friends = new HashMap<>();
-        friends = userStorage.getUser(id).getFriends()
+    public List<User> getUserFriends(Integer id) {
+        return userStorage.getUser(id).getFriends()
                 .stream()
-                .map(userStorage::getUser).collect(Collectors.toMap(User::getId, user -> user));
-    return friends;
+                .map(userStorage::getUser).collect(Collectors.toList());
     }
 
     public Map<Integer, User> getCommonFriends(Integer id, Integer otherId) {
