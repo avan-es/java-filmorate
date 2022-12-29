@@ -43,7 +43,10 @@ public class FilmService {
 
     public Set<Film> getTopFilms(Integer count) {
         Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
-            if (o1.getLikes().size() > o2.getLikes().size()) {
+            if(o1.getLikes().size() == o2.getLikes().size()) {
+                return o1.getId() - o2.getId();
+
+            } else if (o1.getLikes().size() > o2.getLikes().size()) {
                 return -1;
         } else {
             return 1;
