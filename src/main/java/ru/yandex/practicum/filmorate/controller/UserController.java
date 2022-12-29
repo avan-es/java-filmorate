@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,9 +60,9 @@ public class UserController {
 
     //TZ 10
     @GetMapping("/{id}/friends")
-    public Collection<User> getUserFriends(@PathVariable Integer id) {
+    public List<User> getUserFriends(@PathVariable Integer id) {
         userValidation.userIdValidation(id);
-        return userService.getUserFriends(id).values();
+        return userService.getUserFriends(id);
     }
 
     //TZ 10
