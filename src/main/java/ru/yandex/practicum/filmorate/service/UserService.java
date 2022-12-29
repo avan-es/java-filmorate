@@ -51,12 +51,12 @@ public class UserService {
                 .map(userStorage::getUser).collect(Collectors.toList());
     }
 
-    public Map<Integer, User> getCommonFriends(Integer id, Integer otherId) {
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
         Set<Integer> commonFriendsId = new HashSet<>(userStorage.getUser(id).getFriends());
         commonFriendsId.retainAll(userStorage.getUser(otherId).getFriends());
-        Map<Integer, User> commonFriends = new HashMap<>();
+        List<User> commonFriends = new ArrayList<>();
         for (int userId : commonFriendsId) {
-            commonFriends.put(userId, userStorage.getUser(userId));
+            commonFriends.add(userStorage.getUser(userId));
         }
         return commonFriends;
     }
