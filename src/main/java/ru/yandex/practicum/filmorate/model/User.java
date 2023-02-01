@@ -16,7 +16,7 @@ import java.util.Set;
 @Builder
 public class User {
     //final позволяет исключить поле класса из видимости Builder - тогда id добавляются!
-    //private final Set<Integer> friends = new HashSet<>();
+    private final Set<Integer> friends = new HashSet<>();
     @PositiveOrZero
     private int id;
     @Email
