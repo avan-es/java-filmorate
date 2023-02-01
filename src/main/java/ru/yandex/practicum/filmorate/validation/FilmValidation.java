@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.validation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
@@ -11,9 +12,10 @@ import java.time.LocalDate;
 import java.time.Month;
 
 @RequiredArgsConstructor
-@Component
+@Component("filmValidation")
 public class FilmValidation {
-    private final FilmStorage filmStorage;
+    @Qualifier("filmDbStorage")
+    private FilmStorage filmStorage;
 
     public static final LocalDate FILMS_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
 
