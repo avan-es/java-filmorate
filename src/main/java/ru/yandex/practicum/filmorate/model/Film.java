@@ -18,7 +18,7 @@ import java.util.Set;
  * */
 @Builder
 public class Film {
-    private final Set<Integer> likes = new HashSet<>();
+    //private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
     private int id;
     @NotNull @NotBlank
@@ -29,4 +29,6 @@ public class Film {
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
+    @NotNull @NotBlank
+    private int rating;
 }
