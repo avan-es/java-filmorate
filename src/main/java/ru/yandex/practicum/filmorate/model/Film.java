@@ -18,7 +18,7 @@ import java.util.Set;
  * */
 @Builder
 public class Film {
-    //private final Set<Integer> likes = new HashSet<>();
+    private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
     private int id;
     @NotNull @NotBlank
