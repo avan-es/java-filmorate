@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.validation;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
@@ -11,10 +12,11 @@ import java.time.LocalDate;
 
 
 @RequiredArgsConstructor
-@Component
+@Component("userValidation")
 public class UserValidation {
 
-    private final UserStorage userStorage;
+    @Qualifier("userDbStorage")
+    private UserStorage userStorage;
 
     public User userValidation(User user) {
         if (user.getEmail().isEmpty() ||
