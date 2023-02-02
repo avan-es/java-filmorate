@@ -1,4 +1,4 @@
-create table IF NOT EXISTS RATING
+create table IF NOT EXISTS PUBLIC.RATING
 (
     RATING_ID   INTEGER auto_increment,
     RATING_NAME CHARACTER VARYING(10) not null,
@@ -6,7 +6,7 @@ create table IF NOT EXISTS RATING
         primary key (RATING_ID)
 );
 
-create table IF NOT EXISTS FILM
+create table IF NOT EXISTS PUBLIC.FILM
 (
     FILM_ID          INTEGER auto_increment,
     FILM_NAME        CHARACTER VARYING(100) not null,
@@ -20,7 +20,7 @@ create table IF NOT EXISTS FILM
         foreign key (FILM_RATING) references RATING
 );
 
-create table IF NOT EXISTS GENRE
+create table IF NOT EXISTS PUBLIC.GENRE
 (
     GENRE_ID   INTEGER auto_increment,
     GENRE_NAME CHARACTER VARYING(50) not null,
@@ -28,7 +28,7 @@ create table IF NOT EXISTS GENRE
         primary key (GENRE_ID)
 );
 
-create table IF NOT EXISTS FILM_GENRE
+create table IF NOT EXISTS PUBLIC.FILM_GENRE
 (
     FILM_GENRE_ID INTEGER auto_increment,
     GENRE_ID      INTEGER not null,
@@ -41,7 +41,7 @@ create table IF NOT EXISTS FILM_GENRE
         foreign key (GENRE_ID) references GENRE
 );
 
-create table IF NOT EXISTS USERS
+create table IF NOT EXISTS PUBLIC.USERS
 (
     USER_ID  INTEGER auto_increment,
     EMAIL    CHARACTER VARYING(100) not null,
@@ -52,7 +52,7 @@ create table IF NOT EXISTS USERS
         primary key (USER_ID)
 );
 
-create table IF NOT EXISTS FRIENDS
+create table IF NOT EXISTS PUBLIC.FRIENDS
 (
     USER_ID   INTEGER               not null,
     FRIEND_ID INTEGER               not null,
@@ -63,7 +63,7 @@ create table IF NOT EXISTS FRIENDS
         foreign key (FRIEND_ID) references USERS
 );
 
-create table IF NOT EXISTS LIKES
+create table IF NOT EXISTS PUBLIC.LIKES
 (
     LIKE_ID INTEGER auto_increment,
     FILM_ID INTEGER not null,
