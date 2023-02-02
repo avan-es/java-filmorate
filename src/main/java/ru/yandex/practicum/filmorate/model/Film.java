@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -17,6 +16,8 @@ import java.util.Set;
  * @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor
  * */
 @Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class Film {
     private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
