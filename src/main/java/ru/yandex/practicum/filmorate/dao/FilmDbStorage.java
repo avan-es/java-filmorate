@@ -13,8 +13,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component("filmDbStorage")
 @Repository
@@ -29,9 +28,18 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Integer, Film> getAllFilms() {
-        return null;
+    public Map<Integer,Film> getAllFilms() {
+        List<Film> films = new ArrayList<>();
+        String sqlRequest =  "select * from PUBLIC.FILM";
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlRequest);
+        films =  jdbcTemplate.query(sqlRequest, (rs, rowNum) -> makeFilm(rs));
+        HashMap<Integer, Film> filmsMap = new HashMap<>();
+        for (Film film: films) {
+            filmsMap.put(film.getId(), film);
+        }
+        return filmsMap;
     }
+
 
     @Override
     public Film addFilm(Film film) {
@@ -53,20 +61,22 @@ public class FilmDbStorage implements FilmStorage {
         String sqlRequest =  "select * " +
         "from PUBLIC.FILM where FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlRequest);
-            // вы заполните данные пользователя в следующем уроке
-            Film film = jdbcTemplate.queryForObject(
-                    sqlRequest,
-                    new RowMapper<Film>() {
-                        public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-                            Film film = new Film(rs.getInt("FILM_ID"),
-                                    rs.getString("film_name"),
-                                    rs.getString("film_description"),
-                                    LocalDate.parse(rs.getString("release_date")),
-                                    rs.getInt("film_duration"),
-                                    rs.getInt("film_rating"));
-                            return film;
-                        }
-                    });
-            return film;
+        return jdbcTemplate.queryForObject(
+                sqlRequest, new RowMapper<Film>() {
+                    public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        Film film = makeFilm(rs);
+                        return film;
+                    }
+                });
+    }
+
+    private Film makeFilm(ResultSet rs) throws SQLException {
+        Film film = new Film(rs.getInt("FILM_ID"),
+                rs.getString("film_name"),
+                rs.getString("film_description"),
+                LocalDate.parse(rs.getString("release_date")),
+                rs.getInt("film_duration"),
+                rs.getInt("film_rating"));
+        return film;
     }
 }
