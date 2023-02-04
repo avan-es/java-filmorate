@@ -1,22 +1,29 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.validation.FilmValidation;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Qualifier("filmDbStorage")
+    //@Qualifier("filmDbStorage")
     private FilmStorage filmStorage;
 
+    private final FilmValidation filmValidation;
+
+    @Autowired
+    public void setJdbcFilmDAO(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+        this.filmStorage = filmDbStorage;
+    }
 
     public Map<Integer, Film> getAllFilms() {
         return filmStorage.getAllFilms();
@@ -31,6 +38,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Integer id) {
+        filmValidation.filmIdValidationDB(id);
         return filmStorage.getFilmById(id);
     }
 
