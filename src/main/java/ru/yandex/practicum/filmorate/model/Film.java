@@ -30,6 +30,6 @@ public class Film {
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
-    @NotNull @NotBlank
-    private int rating;
+    private String genre;
+    private String mpa;
 }
