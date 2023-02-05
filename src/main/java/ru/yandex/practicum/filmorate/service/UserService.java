@@ -4,36 +4,36 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-
+import ru.yandex.practicum.filmorate.validation.UserValidation;
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    @Qualifier("userDbStorage")
     private UserStorage userStorage;
 
-
-
-
-    public void addFriend (Integer id, Integer friendId){
-        userStorage.getUser(id).getFriends().add(friendId);
-        userStorage.getUser(friendId).getFriends().add(id);
-    }
-
-    public User deleteUser(User user) {
-       return userStorage.deleteUser(user);
+    private final UserValidation userValidation;
+    @Autowired
+    public void setJdbcFilmDAO(@Qualifier("userDbStorage") UserDbStorage userDbStorage) {
+        this.userStorage = userDbStorage;
     }
 
     public User addUser(User user) {
+        userValidation.userValidation(user);
         return userStorage.addUser(user);
     }
 
+    public User getUserById(Integer id) {
+        userValidation.userIdValidationDB(id);
+        return userStorage.getUserById(id);
+    }
+
     public User updateUser(User user) {
+        userValidation.isUserPresent(user);
+        userValidation.userLoginIsBusy(user);
         return userStorage.updateUser(user);
     }
 
@@ -41,28 +41,25 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public User getUserById(Integer id) {
-        return userStorage.getUser(id);
-    }
-    //TZ 10
-    public void deleteFriend(Integer id, Integer friendId) {
-        userStorage.getUser(id).getFriends().remove(friendId);
-        userStorage.getUser(friendId).getFriends().remove(id);
+    public String addFriend (Integer id, Integer friendId){
+        userValidation.isUserPresent(getUserById(id));
+        userValidation.isUserPresent((getUserById(id)));
+        return userStorage.addFriend(id, friendId);
     }
 
     public List<User> getUserFriends(Integer id) {
-        return userStorage.getUser(id).getFriends()
-                .stream()
-                .map(userStorage::getUser).collect(Collectors.toList());
+        userValidation.isUserPresent(getUserById(id));
+        return userStorage.getFriends(id);
     }
 
     public List<User> getCommonFriends(Integer id, Integer otherId) {
-        Set<Integer> commonFriendsId = new HashSet<>(userStorage.getUser(id).getFriends());
-        commonFriendsId.retainAll(userStorage.getUser(otherId).getFriends());
-        List<User> commonFriends = new ArrayList<>();
-        for (int userId : commonFriendsId) {
-            commonFriends.add(userStorage.getUser(userId));
-        }
-        return commonFriends;
+        userValidation.isUserPresent(getUserById(id));
+        userValidation.isUserPresent(getUserById(otherId));
+        return userStorage.getCommonFriends(id, otherId);
     }
+
+    public String deleteFriend(Integer id, Integer friendId) {
+        return userStorage.deleteFriend(id, friendId);
+    }
+
 }
