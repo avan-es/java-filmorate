@@ -57,7 +57,7 @@ public class FilmValidation {
 
     public void filmIdValidationDB(int id) {
         String sqlRequest =  "select * " +
-                "from PUBLIC.FILM where FILM_ID = " + id;
+                "from PUBLIC.FILMS where FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!filmRows.next()) {
             throw new FilmNotFoundException("Фильм с ID: " + id +" не найден.");
