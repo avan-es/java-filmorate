@@ -22,7 +22,6 @@ public class Film {
     private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
     private int id;
-    @NotNull @NotBlank
     private String name;
     @Builder.Default
     private String description = "Описание не было заполнено!";
@@ -30,6 +29,6 @@ public class Film {
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
-    private String genre;
-    private String mpa;
+    private Genre[] genres;
+    private Mpa mpa;
 }
