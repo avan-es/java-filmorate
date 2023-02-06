@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.AddToFriendsException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
@@ -16,7 +18,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
         return new ErrorResponse(
-                "Ошибка в ведённых данных.",
+                "Ошибка в запросе.",
                 e.getMessage());
     }
 
@@ -24,7 +26,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUserValidationException(final UserValidationException e) {
         return new ErrorResponse(
-                "Ошибка в одном из полей.",
+                "Ошибка в веденных данных.",
                 e.getMessage());
     }
 
@@ -40,7 +42,23 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFoundException(final FilmNotFoundException e) {
         return new ErrorResponse(
+                "Ошибка в веденных данных.",
+                e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleFilmValidationFoundException(final FilmValidationException e) {
+        return new ErrorResponse(
                 "Ошибка в ведённых данных.",
+                e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleGenreNotFoundException(final GenreNotFoundException e) {
+        return new ErrorResponse(
+                "Ошибка с ID жанра фильма.",
                 e.getMessage());
     }
 
