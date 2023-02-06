@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.MpaException.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.AddToFriendsException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
@@ -59,6 +60,14 @@ public class ErrorHandler {
     public ErrorResponse handleGenreNotFoundException(final GenreNotFoundException e) {
         return new ErrorResponse(
                 "Ошибка с ID жанра фильма.",
+                e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMpaNotFoundException(final MpaNotFoundException e) {
+        return new ErrorResponse(
+                "Ошибка с ID возрастного ограничения",
                 e.getMessage());
     }
 
