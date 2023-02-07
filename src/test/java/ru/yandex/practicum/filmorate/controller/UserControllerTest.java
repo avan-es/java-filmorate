@@ -16,14 +16,21 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
+@SpringBootTest
 class UserControllerTest {
 
-/*    UserController userController;
+    @Autowired
+    UserController userController;
 
-    @BeforeEach
-    void setUp() {
-        userController = new UserController(new UserService (new UserValidation(new JdbcTemplate())));
-    }
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    InMemoryUserStorage userStorage;
+
+    @Autowired
+    UserValidation userValidation;
+
 
     @Test
     @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
@@ -103,5 +110,5 @@ class UserControllerTest {
         });
         assertEquals("Дата рождения не может быть в будущем.", thrown.getMessage(),
                 "Дата рождения не может быть в будущем");
-    }*/
+    }
 }
