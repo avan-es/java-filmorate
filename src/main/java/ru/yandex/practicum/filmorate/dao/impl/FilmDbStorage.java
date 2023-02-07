@@ -47,19 +47,10 @@ public class FilmDbStorage implements FilmStorage {
             return ps;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        //Проставляем рейтинг фильма
-        String filmMpa =jdbcTemplate.queryForObject("SELECT MPAS_NAME FROM MPAS WHERE MPAS_ID =?",
-                new Object[]{film.getMpa().getId()}, String.class);
-        film.getMpa().setName(filmMpa);
         //Заполняем жанры фильма
         if (film.getGenres() != null) {
             String insertFilmGenre = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
             for (Genre genre : film.getGenres()) {
-
-                SqlRowSet genreId = jdbcTemplate.queryForRowSet("SELECT GENRE_ID FROM GENRES WHERE GENRE_ID = ?", genre.getId());
-                if (!genreId.next()) {
-                    throw new NotFoundException(String.format("Жанр с ID %d не найден.", genre.getId()));
-                }
                 String genreName = jdbcTemplate.queryForObject("SELECT GENRE_NAME FROM GENRES WHERE GENRE_ID = ?", String.class, genre.getId());
                 genre.setName(genreName);
                 jdbcTemplate.update(insertFilmGenre, film.getId(), genre.getId());

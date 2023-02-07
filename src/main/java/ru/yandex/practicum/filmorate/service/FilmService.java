@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.validation.FilmValidation;
+import ru.yandex.practicum.filmorate.validation.GenreValidation;
 import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.util.*;
@@ -18,6 +19,8 @@ public class FilmService {
     private FilmStorage filmStorage;
 
     private final FilmValidation filmValidation;
+
+    private final GenreValidation genreValidation;
     private final UserValidation userValidation;
 
     @Autowired
@@ -27,6 +30,11 @@ public class FilmService {
 
     public Film addFilm(Film film) {
         filmValidation.filmValidation(film);
+        if (film.getGenres() != null) {
+            for (int i = 1; i <= film.getGenres().length; i++) {
+                genreValidation.genreIdValidationDB(i);
+            };
+        }
         return filmStorage.addFilm(film);
     }
 
