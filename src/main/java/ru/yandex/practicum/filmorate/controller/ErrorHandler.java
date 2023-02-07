@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.GenreException.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.MpaException.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.AddToFriendsException;
 import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
@@ -56,7 +56,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleGenreNotFoundException(final GenreNotFoundException e) {
         return new ErrorResponse(
                 "Ошибка с ID жанра фильма.",
