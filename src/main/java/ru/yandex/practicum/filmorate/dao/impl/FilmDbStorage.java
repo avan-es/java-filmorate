@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -14,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -78,9 +81,14 @@ public class FilmDbStorage implements FilmStorage {
         "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID " +
         "WHERE F.FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlFilm);
+        return makeFilm(filmRows);
+    }
+
+    private Film makeFilm (SqlRowSet filmRows){
+        Film film = new Film();
         List<Genre> genres = new ArrayList<>();
         while (filmRows.next()){
-            film.setId(id);
+            film.setId(filmRows.getInt("FILM_ID"));
             film.setName(filmRows.getString("FILM_NAME"));
             film.setDescription(filmRows.getString("FILM_DESCRIPTION"));
             film.setReleaseDate(LocalDate.parse(filmRows.getString("RELEASE_DATE")));
