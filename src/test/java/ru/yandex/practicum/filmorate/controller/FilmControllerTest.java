@@ -20,13 +20,13 @@ class FilmControllerTest {
     FilmController filmController;
     private final static String FILM_DESCRIPTION_200_CHAR = "Some description that equals 200 char very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-description.";
 
-    @BeforeEach
+/*    @BeforeEach
     void setUp(){
         filmController = new FilmController(
                 new FilmService(new InMemoryFilmStorage()),
                 new FilmValidation(new InMemoryFilmStorage()),
                 new UserValidation(new InMemoryUserStorage()));
-    }
+    }*/
 
     @Test
     @DisplayName("Название фильма не может быть пустым")

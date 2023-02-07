@@ -17,13 +17,13 @@ class UserControllerTest {
 
     UserController userController;
 
-    @BeforeEach
+/*    @BeforeEach
     void setUp() {
         userController = new UserController(
                 new UserService(new InMemoryUserStorage()),
                 new UserValidation(new InMemoryUserStorage())
         );
-    }
+    }*/
 
     @Test
     @DisplayName("Электронная почта не может быть пустой и должна содержать символ @")
