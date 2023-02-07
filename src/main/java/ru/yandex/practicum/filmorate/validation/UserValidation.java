@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -44,7 +44,7 @@ public class UserValidation {
 
     public void userIdValidation(int id) {
         if (!userStorage.getAllUsers().containsKey(id)) {
-            throw new UserNotFoundException("Пользователь с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", id));
         }
     }
 
@@ -53,7 +53,7 @@ public class UserValidation {
                 "from PUBLIC.USERS where USER_ID = " + id;
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!userRows.next()) {
-            throw new UserNotFoundException("Пользователь с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", id));
         }
     }
 
@@ -85,11 +85,11 @@ public class UserValidation {
         try {
             SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
             if (!userRows.next()) {
-                throw new UserNotFoundException("Пользователь с ID: " + user.getId() +" не найден.");
+                throw new NotFoundException(String.format("Пользователь с ID %d не найден.", user.getId()));
             }
             return true;
         } catch (Exception e){
-            throw new UserNotFoundException("Пользователь с ID: " + user.getId() +" не найден.");
+            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", user.getId()));
         }
     }
 

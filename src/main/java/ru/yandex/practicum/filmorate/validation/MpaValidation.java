@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exeptions.MpaException.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 
 @Component("mpaValidation")
 public class MpaValidation {
@@ -27,7 +27,7 @@ public class MpaValidation {
                 "from PUBLIC.MPAS where MPAS_ID = " + id;
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!mpaRows.next()) {
-            throw new MpaNotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
+            throw new NotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
         }
     }
 

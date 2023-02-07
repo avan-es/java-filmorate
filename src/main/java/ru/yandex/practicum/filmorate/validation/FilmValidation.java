@@ -1,19 +1,15 @@
 package ru.yandex.practicum.filmorate.validation;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -51,7 +47,7 @@ public class FilmValidation {
 
     public void filmIdValidation(int id) {
         if (!filmStorage.getAllFilms().containsKey(id)) {
-            throw new FilmNotFoundException("Фильм с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Фильм с ID %d не найден.", id));
         }
     }
 
@@ -60,7 +56,7 @@ public class FilmValidation {
                 "from PUBLIC.FILMS where FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!filmRows.next()) {
-            throw new FilmNotFoundException("Фильм с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Фильм с ID %d не найден.", id));
         }
     }
 

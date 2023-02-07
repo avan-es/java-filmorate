@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.exeptions.GenreException.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 
 @Component("genreValidation")
 public class GenreValidation {
@@ -24,7 +24,7 @@ public class GenreValidation {
                 "from PUBLIC.GENRES where GENRE_ID = " + id;
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!genreRows.next()) {
-            throw new GenreNotFoundException("Жанр с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Жанр с ID %d не найден.", id));
         }
     }
 }

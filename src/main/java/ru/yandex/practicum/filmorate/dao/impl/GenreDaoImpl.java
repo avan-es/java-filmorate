@@ -5,11 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exeptions.GenreException.GenreNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.MpaException.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,7 @@ public class GenreDaoImpl implements GenreDao {
             genre.setName(genreRS.getString("GENRE_NAME"));
             return genre;
         } else {
-            throw new GenreNotFoundException("Жанр с ID: " + id +" не найден.");
+            throw new NotFoundException(String.format("Жанр с ID %d не найден.", id));
         }
     }
 

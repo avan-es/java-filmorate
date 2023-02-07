@@ -6,9 +6,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.AddToFriendsException;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.AddToFriendsException;
+import ru.yandex.practicum.filmorate.exeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -59,7 +59,7 @@ public class UserDbStorage implements UserStorage {
                     LocalDate.parse(userRows.getString("BIRTHDAY")));
             return user;
         } else {
-            throw new UserNotFoundException(String.format("Пользователь с ID %d не найден.", id));
+            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", id));
         }
     }
 

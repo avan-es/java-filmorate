@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.MpaDao;
-import ru.yandex.practicum.filmorate.exeptions.MpaException.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class MpaDaoImpl implements MpaDao {
             mpa.setName(mpaRS.getString("MPAS_NAME"));
             return mpa;
         } else {
-            throw new MpaNotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
+            throw new NotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
         }
     }
 
