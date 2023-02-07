@@ -7,7 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.GenreException.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -169,7 +169,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         for (Genre genre : film.getGenres()) {
             if (!genresList.contains(genre.getId())) {
-                String genreName = jdbcTemplate.queryForObject("SELECT GENRE_NAME FROM GENRES WHERE GERE_ID =?",
+                String genreName = jdbcTemplate.queryForObject("SELECT GENRE_NAME FROM GENRES WHERE GENRE_ID =?",
                         new Object[]{genre.getId()}, String.class);
                 genresList.add(genre.getId());
                 jdbcTemplate.update(insertGenres, film.getId(), genre.getId());
