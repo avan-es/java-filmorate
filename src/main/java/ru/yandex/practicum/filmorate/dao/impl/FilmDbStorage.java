@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,10 +50,20 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         //Заполняем жанры фильма
         if (film.getGenres() != null) {
+            List<Genre> genres = List.of(film.getGenres());
             String insertFilmGenre = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update(insertFilmGenre, film.getId(), genre.getId());
-            }
+            jdbcTemplate.batchUpdate(insertFilmGenre, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    Genre genre = genres.get(i);
+                    ps.setInt(1, film.getId());
+                    ps.setInt(2, genre.getId());
+                }
+                @Override
+                public int getBatchSize() {
+                    return genres.size();
+                }
+            });
         }
         return film;
     }
