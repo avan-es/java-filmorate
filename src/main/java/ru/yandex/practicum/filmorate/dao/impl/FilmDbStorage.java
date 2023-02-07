@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -60,35 +59,32 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilmById(Integer id) {
         Film film = new Film();
-        String sqlFilm = "SELECT * FROM FILMS WHERE FILM_ID = " + id;
+        String sqlFilm = "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION, f.RELEASE_DATE, f.FILM_DURATION, m.MPAS_ID, m.MPAS_NAME, g.GENRE_ID, g.GENRE_NAME " +
+        "FROM FILMS F " +
+        "LEFT JOIN MPAS m ON f.MPA_ID = m.MPAS_ID " +
+        "LEFT JOIN FILMS_GENRES fg ON fg.FILM_ID = f.FILM_ID " +
+        "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID " +
+        "WHERE F.FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlFilm);
-        if (filmRows.next()){
+        List<Genre> genres = new ArrayList<>();
+        while (filmRows.next()){
             film.setId(id);
             film.setName(filmRows.getString("FILM_NAME"));
             film.setDescription(filmRows.getString("FILM_DESCRIPTION"));
             film.setReleaseDate(LocalDate.parse(filmRows.getString("RELEASE_DATE")));
             film.setDuration(filmRows.getInt("FILM_DURATION"));
+            if (filmRows.getInt("GENRE_ID") != 0){
+                Genre genre = new Genre();
+                genre.setId(filmRows.getInt("GENRE_ID"));
+                genre.setName(filmRows.getString("GENRE_NAME"));
+                genres.add(genre);
+            }
+            Mpa mpa = new Mpa();
+            mpa.setId(filmRows.getInt("MPAS_ID"));
+            mpa.setName(filmRows.getString("MPAS_NAME"));
+            film.setMpa(mpa);
         }
-
-        String sqlRequestGenre = "SELECT g.* FROM GENRES g JOIN FILMS_GENRES fg ON g.GENRE_ID = fg.GENRE_ID WHERE fg.FILM_ID = ?";
-        List<Genre> genres = jdbcTemplate.query(sqlRequestGenre, new Object[]{id}, (rs, rowNum) -> {
-            Genre genre = new Genre();
-            genre.setId(rs.getInt("GENRE_ID"));
-            genre.setName(rs.getString("GENRE_NAME"));
-            return genre;
-        });
-        Genre[] genresForFilm = genres.toArray(new Genre[0]);
-        film.setGenres(genresForFilm);
-
-        Mpa mpa = new Mpa();
-        String sqlRequestMpa = "SELECT m.* FROM MPAS m JOIN FILMS f ON m.MPAS_ID = f.MPA_ID WHERE f.FILM_ID = ?";
-        jdbcTemplate.query(sqlRequestMpa, new Object[]{id}, (rs, rowNum) -> {
-            mpa.setId(rs.getInt("MPAS_ID"));
-            mpa.setName(rs.getString("MPAS_NAME"));
-            return mpa;
-        });
-        film.setMpa(mpa);
-
+        film.setGenres(genres.toArray(new Genre[genres.size()]));
         return film;
     }
 
