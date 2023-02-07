@@ -124,7 +124,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM FILMS AS F LEFT JOIN LIKES ON F.FILM_ID = LIKES.FILM_ID " +
                 "GROUP BY F.FILM_ID " +
                 "ORDER BY LIKES_COUNT DESC " +
-                "LIMIT ?";
+                "FETCH FIRST ? ROWS ONLY";
         List<Film> films = jdbcTemplate.query(sql, new Object[]{limit}, (rs) -> {
             List<Film> filmsList = new ArrayList<>();
             while (rs.next()) {
