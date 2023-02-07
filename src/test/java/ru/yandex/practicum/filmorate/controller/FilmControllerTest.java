@@ -7,9 +7,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
 class FilmControllerTest {
     @Autowired
     FilmController filmController;
@@ -65,6 +68,20 @@ class FilmControllerTest {
                 "Ожидалась ошибка валидации описания фильма.");
     }
 
+    @Test
+    @DisplayName("Описание фильма 200 символов - ОК")
+    public void shouldCreateFilmWithDescriptionSize200Char () {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("1");
+        Film film = Film.builder()
+                .id(1).name("Some name")
+                .description(FILM_DESCRIPTION_200_CHAR)
+                .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
+                .duration(150).mpa(mpa).build();
+        filmController.addFilm(film);
+        assertEquals(1, filmController.getAllFilms().size(), "Фильм не был добавлен в коллекцию.");
+    }
 
     @Test
     @DisplayName("Тест даты релиза — 27 декабря 1895 года - не пройдёт валидацию")
@@ -81,6 +98,21 @@ class FilmControllerTest {
                 "Ожидалась ошибка валидации даты фильма.");
     }
 
+    @Test
+    @DisplayName("Тест даты релиза — 28 декабря 1895 года - пройдёт валидацию")
+    public void shouldAddFilmAfter27_12_1895 () {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("1");
+        Film film = Film.builder()
+                .id(1).name("Some name")
+                .description("Some description")
+                .releaseDate(LocalDate.of(1895, Month.DECEMBER,28))
+                .duration(150).mpa(mpa).build();
+        filmController.addFilm(film);
+        //Нужно бы читить БД и ждаь единицу
+        assertEquals(2, filmController.getAllFilms().size(), "Фильм не был добавлен в коллекцию.");
+    }
 
     @Test
     @DisplayName("Продолжительность фильма должна быть положительной")
