@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +30,6 @@ public class Film {
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
-    private Genre[] genres;
+    private ArrayList<Genre> genres;
     private Mpa mpa;
 }

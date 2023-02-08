@@ -31,7 +31,7 @@ public class FilmService {
     public Film addFilm(Film film) {
         filmValidation.filmValidation(film);
         if (film.getGenres() != null) {
-            for (int i = 1; i <= film.getGenres().length; i++) {
+            for (int i = 1; i <= film.getGenres().size(); i++) {
                 genreValidation.genreIdValidationDB(i);
             };
         }

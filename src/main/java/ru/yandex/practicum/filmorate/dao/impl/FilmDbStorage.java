@@ -53,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         //Заполняем жанры фильма
         if (film.getGenres() != null) {
-            List<Genre> genres = List.of(film.getGenres());
+            ArrayList<Genre> genres = film.getGenres();
             String insertFilmGenre = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertFilmGenre, new BatchPreparedStatementSetter() {
                 @Override
@@ -85,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private Film makeFilm (SqlRowSet filmRows){
         Film film = new Film();
-        List<Genre> genres = new ArrayList<>();
+        ArrayList<Genre> genres = new ArrayList<>();
         while (filmRows.next()){
             film.setId(filmRows.getInt("FILM_ID"));
             film.setName(filmRows.getString("FILM_NAME"));
@@ -103,30 +103,30 @@ public class FilmDbStorage implements FilmStorage {
             mpa.setName(filmRows.getString("MPAS_NAME"));
             film.setMpa(mpa);
         }
-        film.setGenres(genres.toArray(new Genre[genres.size()]));
+        film.setGenres(genres);
         return film;
     }
 
     private Film makeFilmRs (ResultSet rs) throws SQLException {
         Film film = new Film();
-        List<Genre> genres = new ArrayList<>();
 
             film.setId(rs.getInt("FILM_ID"));
             film.setName(rs.getString("FILM_NAME"));
             film.setDescription(rs.getString("FILM_DESCRIPTION"));
             film.setReleaseDate(LocalDate.parse(rs.getString("RELEASE_DATE")));
             film.setDuration(rs.getInt("FILM_DURATION"));
+            film.setGenres(new ArrayList<>());
             if (rs.getInt("GENRE_ID") != 0){
+                System.out.println(rs.getInt("GENRE_ID"));
                 Genre genre = new Genre();
                     genre.setId(rs.getInt("GENRE_ID"));
                     genre.setName(rs.getString("GENRE_NAME"));
-                    genres.add(genre);
+                    film.getGenres().add(genre);
             }
             Mpa mpa = new Mpa();
             mpa.setId(rs.getInt("MPAS_ID"));
             mpa.setName(rs.getString("MPAS_NAME"));
             film.setMpa(mpa);
-        film.setGenres(genres.toArray(new Genre[genres.size()]));
         return film;
     }
 
@@ -181,7 +181,15 @@ public class FilmDbStorage implements FilmStorage {
                 HashMap<Integer, Film> mapRet = new HashMap<>();
                 while (rs.next()){
                     Film film  = makeFilmRs(rs);
-                    mapRet.put(film.getId(),film);
+                    if (mapRet.containsKey(film.getId())){
+                        if(!film.getGenres().isEmpty()) {
+                            Film tempFilm = mapRet.get(film.getId());
+                            tempFilm.getGenres().addAll(film.getGenres());
+                            mapRet.put(tempFilm.getId(), tempFilm);
+                        }
+                    } else {
+                        mapRet.put(film.getId(),film);
+                    }
                 }
                 return mapRet;
             }
@@ -194,7 +202,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         List<Integer> genresList = new ArrayList<>();
-        List<Genre> uniqueGenres = new ArrayList<>();
+        ArrayList<Genre> uniqueGenres = new ArrayList<>();
         String sqlFilm = "UPDATE FILMS SET FILM_NAME = ?, FILM_DESCRIPTION = ?, RELEASE_DATE = ?, " +
                 "FILM_DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?";
         String deleteGenres = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?";
@@ -215,10 +223,12 @@ public class FilmDbStorage implements FilmStorage {
                 genresList.add(genre.getId());
                 jdbcTemplate.update(insertGenres, film.getId(), genre.getId());
                 genre.setName(genreName);
-                uniqueGenres.add(genre);
+                if(!uniqueGenres.contains(genre)) {
+                    uniqueGenres.add(genre);
+                }
             }
         }
-        film.setGenres(uniqueGenres.toArray(new Genre[0]));
+        film.setGenres(uniqueGenres);
         return film;
     }
 
