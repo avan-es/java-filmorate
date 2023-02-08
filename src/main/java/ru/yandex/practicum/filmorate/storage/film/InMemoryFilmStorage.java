@@ -5,10 +5,7 @@ import ru.yandex.practicum.filmorate.exeptions.FilmValidationException;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("inMemoryFilmStorage")
@@ -69,12 +66,15 @@ public class InMemoryFilmStorage implements FilmStorage{
                 return 1;
             }
         });
-        topFilms.addAll(getAllFilms().values());
+        topFilms.addAll(getAllFilms());
         return topFilms.stream().limit(limit).collect(Collectors.toSet());
     }
 
     @Override
-    public Map<Integer, Film> getAllFilms() {
-        return films;
+    public List<Film> getAllFilms() {
+        return films.entrySet()
+                .stream()
+                .map (e -> e.getValue())
+                .collect(Collectors.toList());
     }
 }

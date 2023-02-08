@@ -170,7 +170,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Integer,Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         HashMap<Integer, Film> films = new HashMap<>();
         String sqlFilm = "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION, f.RELEASE_DATE, f.FILM_DURATION, m.MPAS_ID, m.MPAS_NAME, g.GENRE_ID, g.GENRE_NAME " +
                 "FROM FILMS F " +
@@ -196,7 +196,10 @@ public class FilmDbStorage implements FilmStorage {
                 return mapRet;
             }
         });
-        return films;
+        return films.entrySet()
+                .stream()
+                .map (e -> e.getValue())
+                .collect(Collectors.toList());
     }
 
     @Override

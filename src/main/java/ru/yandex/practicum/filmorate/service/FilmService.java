@@ -43,7 +43,7 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
-    public Map<Integer, Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 

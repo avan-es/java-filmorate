@@ -46,7 +46,9 @@ public class FilmValidation {
     }
 
     public void filmIdValidation(int id) {
-        if (!filmStorage.getAllFilms().containsKey(id)) {
+        try {
+            filmStorage.getFilmById(id);
+        } catch (RuntimeException e){
             throw new NotFoundException(String.format("Фильм с ID %d не найден.", id));
         }
     }

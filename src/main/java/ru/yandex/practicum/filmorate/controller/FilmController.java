@@ -25,7 +25,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        return filmService.getAllFilms().values();
+        return filmService.getAllFilms();
     }
 
     @PutMapping
