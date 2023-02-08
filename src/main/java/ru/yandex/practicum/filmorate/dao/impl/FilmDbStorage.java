@@ -213,9 +213,6 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sqlFilm, film.getName(),film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
         jdbcTemplate.update(deleteGenres, film.getId());
-        String mpaName = jdbcTemplate.queryForObject("SELECT MPAS_NAME FROM MPAS WHERE MPAS_ID =?",
-                new Object[]{film.getMpa().getId()}, String.class);
-        film.getMpa().setName(mpaName);
         if (film.getGenres() == null) {
             return film;
         }
