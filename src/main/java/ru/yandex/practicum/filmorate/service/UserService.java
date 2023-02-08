@@ -43,7 +43,7 @@ public class UserService {
 
     public String addFriend (Integer id, Integer friendId){
         userValidation.isUserPresent(getUserById(id));
-        userValidation.isUserPresent((getUserById(id)));
+        userValidation.isUserPresent((getUserById(friendId)));
         return userStorage.addFriend(id, friendId);
     }
 
