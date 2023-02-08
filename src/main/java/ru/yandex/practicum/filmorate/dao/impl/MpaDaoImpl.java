@@ -53,14 +53,9 @@ public class MpaDaoImpl implements MpaDao {
                     mpa.setName(rs.getString("MPAS_NAME"));
                     listMpa.add(mpa);
                 }
-
                 return listMpa;
             }
         });
-       /* List<Integer> ids = jdbcTemplate.queryForList(sql, Integer.class);
-        for (Integer id : ids) {
-            result.add(getMpaById(id));
-        }*/
         return result;
     }
 }
