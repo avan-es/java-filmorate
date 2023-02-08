@@ -194,8 +194,6 @@ public class FilmDbStorage implements FilmStorage {
                 return mapRet;
             }
         });
-
-        System.out.println("Hi");
         return films;
     }
 
