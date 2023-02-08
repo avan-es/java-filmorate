@@ -108,6 +108,30 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    private Film makeFilmRs (ResultSet rs) throws SQLException {
+        Film film = new Film();
+        List<Genre> genres = new ArrayList<>();
+
+            film.setId(rs.getInt("FILM_ID"));
+            film.setName(rs.getString("FILM_NAME"));
+            film.setDescription(rs.getString("FILM_DESCRIPTION"));
+            film.setReleaseDate(LocalDate.parse(rs.getString("RELEASE_DATE")));
+            film.setDuration(rs.getInt("FILM_DURATION"));
+            if (rs.getInt("GENRE_ID") != 0){
+                Genre genre = new Genre();
+                    genre.setId(rs.getInt("GENRE_ID"));
+                    genre.setName(rs.getString("GENRE_NAME"));
+                    genres.add(genre);
+            }
+            Mpa mpa = new Mpa();
+            mpa.setId(rs.getInt("MPAS_ID"));
+            mpa.setName(rs.getString("MPAS_NAME"));
+            film.setMpa(mpa);
+        film.setGenres(genres.toArray(new Genre[genres.size()]));
+        return film;
+    }
+
+
     @Override
     public void putLike(Integer filmId, Integer userId) {
         jdbcTemplate.update("INSERT INTO LIKES (USER_ID, FILM_ID) VALUES (?, ?)", userId, filmId);
@@ -149,9 +173,24 @@ public class FilmDbStorage implements FilmStorage {
         HashMap<Integer, Film> films = new HashMap<>();
         String sqlRequest =  "select FILM_ID from PUBLIC.FILMS";
         List<Integer> filmsId = jdbcTemplate.queryForList(sqlRequest, Integer.class);
-        for (Integer filmId: filmsId) {
-            films.put(filmId, getFilmById(filmId));
-        }
+        String sqlFilm = "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION, f.RELEASE_DATE, f.FILM_DURATION, m.MPAS_ID, m.MPAS_NAME, g.GENRE_ID, g.GENRE_NAME " +
+                "FROM FILMS F " +
+                "LEFT JOIN MPAS m ON f.MPA_ID = m.MPAS_ID " +
+                "LEFT JOIN FILMS_GENRES fg ON fg.FILM_ID = f.FILM_ID " +
+                "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID ";
+        films = jdbcTemplate.query(sqlFilm, new ResultSetExtractor<HashMap>() {
+            @Override
+            public HashMap extractData(ResultSet rs) throws SQLException, DataAccessException {
+                HashMap<Integer, Film> mapRet = new HashMap<>();
+                while (rs.next()){
+                    Film film  = makeFilmRs(rs);
+                    mapRet.put(film.getId(),film);
+                }
+                return mapRet;
+            }
+        });
+
+        System.out.println("Hi");
         return films;
     }
 
