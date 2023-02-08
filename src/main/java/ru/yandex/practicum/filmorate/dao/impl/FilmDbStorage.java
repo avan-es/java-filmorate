@@ -93,9 +93,10 @@ public class FilmDbStorage implements FilmStorage {
             film.setReleaseDate(LocalDate.parse(filmRows.getString("RELEASE_DATE")));
             film.setDuration(filmRows.getInt("FILM_DURATION"));
             if (filmRows.getInt("GENRE_ID") != 0){
-                Genre genre = new Genre();
-                genre.setId(filmRows.getInt("GENRE_ID"));
-                genre.setName(filmRows.getString("GENRE_NAME"));
+                Genre genre = new Genre(
+                    filmRows.getInt("GENRE_ID"),
+                    filmRows.getString("GENRE_NAME")
+                );
                 genres.add(genre);
             }
             Mpa mpa = new Mpa();
@@ -118,9 +119,10 @@ public class FilmDbStorage implements FilmStorage {
             film.setGenres(new ArrayList<>());
             if (rs.getInt("GENRE_ID") != 0){
                 System.out.println(rs.getInt("GENRE_ID"));
-                Genre genre = new Genre();
-                    genre.setId(rs.getInt("GENRE_ID"));
-                    genre.setName(rs.getString("GENRE_NAME"));
+                Genre genre = new Genre(
+                    rs.getInt("GENRE_ID"),
+                    rs.getString("GENRE_NAME")
+                );
                     film.getGenres().add(genre);
             }
             Mpa mpa = new Mpa();
