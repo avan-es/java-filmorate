@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component("genreDaoImpl")
 public class GenreDaoImpl implements GenreDao {
@@ -31,10 +32,10 @@ public class GenreDaoImpl implements GenreDao {
         String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
         SqlRowSet genreRS = jdbcTemplate.queryForRowSet(sql, id);
         if (genreRS.next()) {
-            Genre genre = new Genre();
-            genre.setId(genreRS.getInt("GENRE_ID"));
-            genre.setName(genreRS.getString("GENRE_NAME"));
-            return genre;
+            return new Genre(
+                genreRS.getInt("GENRE_ID"),
+                genreRS.getString("GENRE_NAME")
+            );
         } else {
             throw new NotFoundException(String.format("Жанр с ID %d не найден.", id));
         }
@@ -42,20 +43,12 @@ public class GenreDaoImpl implements GenreDao {
 
     @Override
     public List<Genre> getAllGenre() {
-        List<Genre> result = new ArrayList<>();
         String sql = "SELECT * FROM GENRES ORDER BY GENRE_ID";
-        result = jdbcTemplate.query(sql, new ResultSetExtractor<List<Genre>>() {
-            @Override
-            public List<Genre> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                List<Genre> listGere = new ArrayList<>();
-                while (rs.next()){
-                    Genre genre = new Genre();
-                    genre.setId(rs.getInt("GENRE_ID"));
-                    genre.setName(rs.getString("GENRE_NAME"));
-                    listGere.add(genre);
-                }
-                return listGere;
-            }
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        List<Genre> result = new ArrayList<>();
+        list.forEach(m -> {
+            Genre g = new Genre(((Integer)m.get("GENRE_ID")), ((String)m.get("GENRE_NAME")));
+            result.add(g);
         });
         return result;
     }
