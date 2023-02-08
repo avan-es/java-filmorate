@@ -51,16 +51,7 @@ public class UserDbStorage implements UserStorage {
         String sqlRequest =  "select * " +
                 "from PUBLIC.USERS where USER_ID = " + id;
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
-        if(userRows.next()) {
-            User user = new User(id,
-                    userRows.getString("LOGIN"),
-                    userRows.getString("NAME"),
-                    userRows.getString("EMAIL"),
-                    LocalDate.parse(userRows.getString("BIRTHDAY")));
-            return user;
-        } else {
-            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", id));
-        }
+        return makeUser(userRows);
     }
 
     @Override
@@ -74,7 +65,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Map<Integer, User> getAllUsers() {
         String sqlRequest =  "select * from PUBLIC.USERS";
-        List<User> users =  jdbcTemplate.query(sqlRequest, (rs, rowNum) -> makeUser(rs));
+        List<User> users =  jdbcTemplate.query(sqlRequest, (rs, rowNum) -> makeUserRs(rs));
         HashMap<Integer, User> usersMap = new HashMap<>();
         for (User user: users) {
             usersMap.put(user.getId(), user);
@@ -140,12 +131,24 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    private User makeUser(ResultSet rs) throws SQLException {
+    private User makeUserRs(ResultSet rs) throws SQLException {
         User user = new User(rs.getInt("USER_ID"),
                 rs.getString("LOGIN"),
                 rs.getString("NAME"),
                 rs.getString("EMAIL"),
                 LocalDate.parse(rs.getString("BIRTHDAY")));
+        return user;
+    }
+
+    private User makeUser(SqlRowSet us) {
+        User user = new User();
+        while (us.next()){
+            user.setId(us.getInt("USER_ID"));
+            user.setLogin(us.getString("LOGIN"));
+            user.setName(us.getString("NAME"));
+            user.setEmail(us.getString("EMAIL"));
+            user.setBirthday(LocalDate.parse(us.getString("BIRTHDAY")));
+        }
         return user;
     }
 }
