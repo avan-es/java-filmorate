@@ -218,14 +218,9 @@ public class FilmDbStorage implements FilmStorage {
         }
         for (Genre genre : film.getGenres()) {
             if (!genresList.contains(genre.getId())) {
-                String genreName = jdbcTemplate.queryForObject("SELECT GENRE_NAME FROM GENRES WHERE GENRE_ID =?",
-                        new Object[]{genre.getId()}, String.class);
                 genresList.add(genre.getId());
                 jdbcTemplate.update(insertGenres, film.getId(), genre.getId());
-                genre.setName(genreName);
-                if(!uniqueGenres.contains(genre)) {
-                    uniqueGenres.add(genre);
-                }
+                uniqueGenres.add(genre);
             }
         }
         film.setGenres(uniqueGenres);
