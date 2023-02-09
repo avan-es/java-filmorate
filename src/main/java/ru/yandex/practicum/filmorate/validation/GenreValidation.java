@@ -20,8 +20,8 @@ public class GenreValidation {
     }
 
     public void genreIdValidationDB(Integer id) {
-        String sqlRequest =  "select * " +
-                "from PUBLIC.GENRES where GENRE_ID = " + id;
+        String sqlRequest =  String.format("select * " +
+                "from PUBLIC.GENRES where EXISTS(SELECT 1 FROM PUBLIC.GENRES where GENRE_ID = %d);",id);
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (!genreRows.next()) {
             throw new NotFoundException(String.format("Жанр с ID %d не найден.", id));
