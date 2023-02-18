@@ -23,12 +23,14 @@ public class MpaDaoImpl implements MpaDao {
 
     @Override
     public Mpa getMpaById(Integer id) {
-        String sql = "SELECT * FROM MPAS WHERE MPAS_ID = ?";
+        String sql = "SELECT * " +
+                     "FROM mpas " +
+                     "WHERE mpas_id = ?";
         SqlRowSet mpaRS = jdbcTemplate.queryForRowSet(sql, id);
         if (mpaRS.next()) {
             Mpa mpa = new Mpa();
-            mpa.setId(mpaRS.getInt("MPAS_ID"));
-            mpa.setName(mpaRS.getString("MPAS_NAME"));
+            mpa.setId(mpaRS.getInt("mpas_id"));
+            mpa.setName(mpaRS.getString("mpas_name"));
             return mpa;
         } else {
             throw new NotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
@@ -37,11 +39,12 @@ public class MpaDaoImpl implements MpaDao {
 
     @Override
     public List<Mpa> getAllMpas() {
-        String sql = "SELECT * FROM MPAS ORDER BY MPAS_ID";
+        String sql = "SELECT * " +
+                     "FROM mpas ORDER BY mpas_id";
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
         List<Mpa> result = new ArrayList<>();
         list.forEach(m -> {
-            Mpa mpa = new Mpa(((Integer)m.get("MPAS_ID")), ((String)m.get("MPAS_NAME")));
+            Mpa mpa = new Mpa(((Integer)m.get("mpas_id")), ((String)m.get("mpas_name")));
             result.add(mpa);
         });
         return result;
