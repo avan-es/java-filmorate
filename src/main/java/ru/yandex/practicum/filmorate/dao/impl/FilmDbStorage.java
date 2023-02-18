@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -53,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
                                      "VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertFilmGenre, new BatchPreparedStatementSetter() {
                 @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                public void setValues(@NonNull PreparedStatement ps, int i) throws SQLException {
                     Genre genre = genres.get(i);
                     ps.setInt(1, film.getId());
                     ps.setInt(2, genre.getId());
@@ -76,15 +76,14 @@ public class FilmDbStorage implements FilmStorage {
                          "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
                          "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
                          "WHERE f.film_id = " + id;
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlFilm);
-        List<Film> film = new ArrayList<>();
+        List<Film> film;
         film = jdbcTemplate.query(sqlFilm, new FilmBuilder());
-        return film.get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
+        return Objects.requireNonNull(film).get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
     @Override
     public List<Film> getAllFilms() {
-        List<Film> films = new ArrayList<>();
+        List<Film> films;
         String sqlFilm = "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
                 "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name " +
                 "FROM films f " +
@@ -111,20 +110,17 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getTopFilms(Integer limit) {
-        String sql = "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, f.mpa_id, " +
-                     "COUNT(likes.film_id) AS likes_count " +
-                     "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
-                     "GROUP BY f.film_id " +
-                     "ORDER BY likes_count DESC " +
-                     "FETCH FIRST ? ROWS ONLY";
-        List<Film> films = jdbcTemplate.query(sql, new Object[]{limit}, (rs) -> {
-            List<Film> filmsList = new ArrayList<>();
-            while (rs.next()) {
-                Film film = getFilmById(rs.getInt("film_id"));
-                filmsList.add(film);
-            }
-            return filmsList;
-        });
+        String sql = ("SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
+                      "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, " +
+                      "COUNT(likes.film_id) AS likes_count " +
+                      "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
+                      "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
+                      "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
+                      "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                      "GROUP BY f.film_id, g.genre_id " +
+                      "ORDER BY likes_count DESC " +
+                      "FETCH FIRST " + limit +" ROWS ONLY");
+        List<Film> films = jdbcTemplate.query(sql, new FilmBuilder());
         return films.stream().collect(Collectors.toSet());
     }
 
