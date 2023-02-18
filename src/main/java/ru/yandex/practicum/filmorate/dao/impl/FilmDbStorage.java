@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -12,19 +10,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
 
 @Component("filmDbStorage")
 @Repository
 public class FilmDbStorage implements FilmStorage {
+
 
     //Это должно быть здесь, для работы с БД
     private final JdbcTemplate jdbcTemplate;
@@ -80,56 +78,21 @@ public class FilmDbStorage implements FilmStorage {
         "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID " +
         "WHERE F.FILM_ID = " + id;
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlFilm);
-        return makeFilm(filmRows);
+        List<Film> film = new ArrayList<>();
+        film = jdbcTemplate.query(sqlFilm, new FilmBuilder());
+        return film.get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
-    private Film makeFilm (SqlRowSet filmRows){
-        Film film = new Film();
-        ArrayList<Genre> genres = new ArrayList<>();
-        while (filmRows.next()){
-            film.setId(filmRows.getInt("FILM_ID"));
-            film.setName(filmRows.getString("FILM_NAME"));
-            film.setDescription(filmRows.getString("FILM_DESCRIPTION"));
-            film.setReleaseDate(LocalDate.parse(filmRows.getString("RELEASE_DATE")));
-            film.setDuration(filmRows.getInt("FILM_DURATION"));
-            if (filmRows.getInt("GENRE_ID") != 0){
-                Genre genre = new Genre(
-                    filmRows.getInt("GENRE_ID"),
-                    filmRows.getString("GENRE_NAME")
-                );
-                genres.add(genre);
-            }
-            Mpa mpa = new Mpa();
-            mpa.setId(filmRows.getInt("MPAS_ID"));
-            mpa.setName(filmRows.getString("MPAS_NAME"));
-            film.setMpa(mpa);
-        }
-        film.setGenres(genres);
-        return film;
-    }
-
-    private Film makeFilmRs (ResultSet rs) throws SQLException {
-        Film film = new Film();
-
-            film.setId(rs.getInt("FILM_ID"));
-            film.setName(rs.getString("FILM_NAME"));
-            film.setDescription(rs.getString("FILM_DESCRIPTION"));
-            film.setReleaseDate(LocalDate.parse(rs.getString("RELEASE_DATE")));
-            film.setDuration(rs.getInt("FILM_DURATION"));
-            film.setGenres(new ArrayList<>());
-            if (rs.getInt("GENRE_ID") != 0){
-                System.out.println(rs.getInt("GENRE_ID"));
-                Genre genre = new Genre(
-                    rs.getInt("GENRE_ID"),
-                    rs.getString("GENRE_NAME")
-                );
-                    film.getGenres().add(genre);
-            }
-            Mpa mpa = new Mpa();
-            mpa.setId(rs.getInt("MPAS_ID"));
-            mpa.setName(rs.getString("MPAS_NAME"));
-            film.setMpa(mpa);
-        return film;
+    @Override
+    public List<Film> getAllFilms() {
+        List<Film> films = new ArrayList<>();
+        String sqlFilm = "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION, f.RELEASE_DATE, f.FILM_DURATION, m.MPAS_ID, m.MPAS_NAME, g.GENRE_ID, g.GENRE_NAME " +
+                "FROM FILMS F " +
+                "LEFT JOIN MPAS m ON f.MPA_ID = m.MPAS_ID " +
+                "LEFT JOIN FILMS_GENRES fg ON fg.FILM_ID = f.FILM_ID " +
+                "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID ";
+        films = jdbcTemplate.query(sqlFilm, new FilmBuilder());
+        return films;
     }
 
 
@@ -169,38 +132,6 @@ public class FilmDbStorage implements FilmStorage {
         return films.stream().collect(Collectors.toSet());
     }
 
-    @Override
-    public List<Film> getAllFilms() {
-        HashMap<Integer, Film> films = new HashMap<>();
-        String sqlFilm = "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION, f.RELEASE_DATE, f.FILM_DURATION, m.MPAS_ID, m.MPAS_NAME, g.GENRE_ID, g.GENRE_NAME " +
-                "FROM FILMS F " +
-                "LEFT JOIN MPAS m ON f.MPA_ID = m.MPAS_ID " +
-                "LEFT JOIN FILMS_GENRES fg ON fg.FILM_ID = f.FILM_ID " +
-                "LEFT JOIN GENRES g ON g.GENRE_ID = fg.GENRE_ID ";
-        films = jdbcTemplate.query(sqlFilm, new ResultSetExtractor<HashMap>() {
-            @Override
-            public HashMap extractData(ResultSet rs) throws SQLException, DataAccessException {
-                HashMap<Integer, Film> mapRet = new HashMap<>();
-                while (rs.next()){
-                    Film film  = makeFilmRs(rs);
-                    if (mapRet.containsKey(film.getId())){
-                        if(!film.getGenres().isEmpty()) {
-                            Film tempFilm = mapRet.get(film.getId());
-                            tempFilm.getGenres().addAll(film.getGenres());
-                            mapRet.put(tempFilm.getId(), tempFilm);
-                        }
-                    } else {
-                        mapRet.put(film.getId(),film);
-                    }
-                }
-                return mapRet;
-            }
-        });
-        return films.entrySet()
-                .stream()
-                .map (e -> e.getValue())
-                .collect(Collectors.toList());
-    }
 
     @Override
     public Film updateFilm(Film film) {
