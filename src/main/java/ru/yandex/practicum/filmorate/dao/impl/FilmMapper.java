@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Component
-public class FilmBuilder implements ResultSetExtractor<List<Film>> {
+public class FilmMapper implements ResultSetExtractor<List<Film>> {
 
     @Override
     public List<Film> extractData(ResultSet rs) throws SQLException, DataAccessException {

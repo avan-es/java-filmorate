@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
                          "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
                          "WHERE f.film_id = " + id;
         List<Film> film;
-        film = jdbcTemplate.query(sqlFilm, new FilmBuilder());
+        film = jdbcTemplate.query(sqlFilm, new FilmMapper());
         return Objects.requireNonNull(film).get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
@@ -89,7 +89,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
                 "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
                 "LEFT JOIN genres g ON g.genre_id = fg.genre_id ";
-        films = jdbcTemplate.query(sqlFilm, new FilmBuilder());
+        films = jdbcTemplate.query(sqlFilm, new FilmMapper());
         return films;
     }
 
@@ -119,7 +119,7 @@ public class FilmDbStorage implements FilmStorage {
                       "GROUP BY f.film_id, g.genre_id " +
                       "ORDER BY likes_count DESC " +
                       "FETCH FIRST " + limit +" ROWS ONLY");
-        List<Film> films = jdbcTemplate.query(sql, new FilmBuilder());
+        List<Film> films = jdbcTemplate.query(sql, new FilmMapper());
         assert films != null;
         return new HashSet<>(films);
     }
