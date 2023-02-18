@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
 
@@ -121,7 +120,8 @@ public class FilmDbStorage implements FilmStorage {
                       "ORDER BY likes_count DESC " +
                       "FETCH FIRST " + limit +" ROWS ONLY");
         List<Film> films = jdbcTemplate.query(sql, new FilmBuilder());
-        return films.stream().collect(Collectors.toSet());
+        assert films != null;
+        return new HashSet<>(films);
     }
 
 
