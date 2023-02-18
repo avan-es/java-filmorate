@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
+
 @Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -33,9 +35,9 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement("INSERT INTO USERS (LOGIN, NAME, EMAIL, BIRTHDAY)" +
-                            "VALUES (?, ?, ?, ?)",
-                    new String[]{"USER_ID"});
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO users (login, name, email, birthday)" +
+                                                                   "VALUES (?, ?, ?, ?)",
+                    new String[]{"user_id"});
             ps.setString(1, user.getLogin());
             ps.setString(2, user.getName());
             ps.setString(3, user.getEmail());
@@ -48,29 +50,29 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Integer id) {
-        String sqlRequest =  "select * " +
-                "from PUBLIC.USERS where USER_ID = " + id;
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
-        return makeUser(userRows);
+        String sqlRequest =  "SELECT * " +
+                             "FROM users WHERE user_id = " + id;
+        List<User> user = jdbcTemplate.query(sqlRequest, new UserMapper());
+        return user.get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
     @Override
     public User updateUser(User user) {
         getUserById(user.getId());
-        String sqlRequest = "UPDATE USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-        jdbcTemplate.update(sqlRequest, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(), user.getId());
+        String sqlRequest = "UPDATE users " +
+                            "SET login = ?, name = ?, email = ?, birthday = ? " +
+                            "WHERE user_id = ?";
+        jdbcTemplate.update(sqlRequest, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(),
+                            user.getId());
         return getUserById(user.getId());
     }
 
     @Override
     public Map<Integer, User> getAllUsers() {
-        String sqlRequest =  "select * from PUBLIC.USERS";
-        List<User> users =  jdbcTemplate.query(sqlRequest, (rs, rowNum) -> makeUserRs(rs));
-        HashMap<Integer, User> usersMap = new HashMap<>();
-        for (User user: users) {
-            usersMap.put(user.getId(), user);
-        }
-        return usersMap;
+        String sqlRequest =  "SELECT * " +
+                             "FROM users";
+        List<User> users = jdbcTemplate.query(sqlRequest, new UserMapper());
+        return users.stream().collect(Collectors.toMap(user -> user.getId(), user -> user));
     }
 
     @Override
@@ -80,25 +82,37 @@ public class UserDbStorage implements UserStorage {
         }
         getUserById(fromUserId);
         getUserById(toUserId);
-        String sqlFrom = "SELECT * FROM friends WHERE from_user = ? AND to_user = ?";
+        String sqlFrom = "SELECT * " +
+                         "FROM friends " +
+                         "WHERE from_user = ? " +
+                         "AND to_user = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlFrom, toUserId, fromUserId);
         if (userRows.next()) {
-            String sql = "UPDATE friends SET status = ? WHERE from_user = ? AND to_user = ?";
-            jdbcTemplate.update(sql, "accepted", toUserId, fromUserId);
+            String sql = "UPDATE friends " +
+                         "SET status = ? " +
+                         "WHERE from_user = ? " +
+                         "AND to_user = ?";
+            jdbcTemplate.update(sql, "Accepted", toUserId, fromUserId);
             return String.format("Теперь вы и пользователь с ID %d друзья.", toUserId);
         }
         userRows = jdbcTemplate.queryForRowSet(sqlFrom, fromUserId, toUserId);
         if (userRows.next()){
             throw new AddToFriendsException("Запрос на добавление в друзья уже существует.");
         }
-        jdbcTemplate.update("INSERT INTO friends (from_user, to_user) VALUES (?, ?)", fromUserId, toUserId);
+        jdbcTemplate.update("INSERT INTO friends (from_user, to_user) " +
+                                "VALUES (?, ?)", fromUserId, toUserId);
         return String.format("Запрос на добавление в друзь пользователю с ID %d отправлен.", toUserId);
     }
 
     @Override
     public List<User> getFriends(Integer id) {
-        String sqlFrom = "SELECT TO_USER FROM FRIENDS WHERE FROM_USER =" + id;
-        String sqlTo = "SELECT FROM_USER FROM FRIENDS WHERE TO_USER =" + id + " AND STATUS = 'accepted'";
+        String sqlFrom = "SELECT to_user " +
+                         "FROM friends " +
+                         "WHERE from_user =" + id;
+        String sqlTo = "SELECT from_user " +
+                       "FROM friends " +
+                       "WHERE to_user = " + id +
+                       " AND status = 'Accepted'";
         List<Integer> idsFrom = jdbcTemplate.queryForList(sqlFrom, Integer.class);
         List<Integer> idsTo = jdbcTemplate.queryForList(sqlTo, Integer.class);
         List<Integer> allFriends = Stream.concat(idsFrom.stream(), idsTo.stream()).distinct().collect(Collectors.toList());
@@ -121,34 +135,19 @@ public class UserDbStorage implements UserStorage {
     public String deleteFriend(Integer id, Integer friendId) {
         getUserById(id);
         getUserById(friendId);
-        String sqlFrom = "SELECT * FROM friends WHERE from_user = ? AND to_user = ?";
+        String sqlFrom = "SELECT * " +
+                         "FROM friends " +
+                         "WHERE from_user = ? " +
+                         "AND to_user = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlFrom, id, friendId);
         if (userRows.next()) {
-            jdbcTemplate.update("DELETE FROM friends WHERE from_user = ? AND to_user = ?", id, friendId);
+            jdbcTemplate.update("DELETE FROM friends " +
+                                    "WHERE from_user = ? " +
+                                    "AND to_user = ?", id, friendId);
             return String.format("Пользователь с идентификатором %d удален из друзей пользователя с идентификатором %d.", friendId, id);
         } else {
             throw new UserValidationException("Нельзя удалить пользователя из друзей, если он не является вашим другом.");
         }
     }
 
-    private User makeUserRs(ResultSet rs) throws SQLException {
-        User user = new User(rs.getInt("USER_ID"),
-                rs.getString("LOGIN"),
-                rs.getString("NAME"),
-                rs.getString("EMAIL"),
-                LocalDate.parse(rs.getString("BIRTHDAY")));
-        return user;
-    }
-
-    private User makeUser(SqlRowSet us) {
-        User user = new User();
-        while (us.next()){
-            user.setId(us.getInt("USER_ID"));
-            user.setLogin(us.getString("LOGIN"));
-            user.setName(us.getString("NAME"));
-            user.setEmail(us.getString("EMAIL"));
-            user.setBirthday(LocalDate.parse(us.getString("BIRTHDAY")));
-        }
-        return user;
-    }
 }
