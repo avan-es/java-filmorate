@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exeptions.ModelValidationException;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -28,16 +28,16 @@ public class UserValidation {
     public User userValidation(User user) {
         if (user.getEmail().isEmpty() ||
                 user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            throw new UserValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+            throw new ModelValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
         if (user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            throw  new UserValidationException("Логин не может быть пустым и содержать пробелы.");
+            throw  new ModelValidationException("Логин не может быть пустым и содержать пробелы.");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new UserValidationException("Дата рождения не может быть в будущем.");
+            throw new ModelValidationException("Дата рождения не может быть в будущем.");
         }
         return user;
     }
@@ -63,7 +63,7 @@ public class UserValidation {
         try {
             SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
             if (userRows.next()) {
-                throw new UserValidationException("Логин: " + user.getLogin() +" уже занят.");
+                throw new ModelValidationException("Логин: " + user.getLogin() +" уже занят.");
             }
         } catch (Exception e){
 
@@ -75,7 +75,7 @@ public class UserValidation {
                 "from PUBLIC.USERS where EMAIL = " + user.getEmail();
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
         if (userRows.next()) {
-            throw new UserValidationException("Почта: " + user.getEmail() +" уже занята.");
+            throw new ModelValidationException("Почта: " + user.getEmail() +" уже занята.");
         }
     }
 
