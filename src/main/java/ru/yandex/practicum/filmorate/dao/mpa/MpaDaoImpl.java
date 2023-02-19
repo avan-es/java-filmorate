@@ -2,14 +2,11 @@ package ru.yandex.practicum.filmorate.dao.mpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.mpa.MpaDao;
-import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
 
 @Component("mpaDaoImpl")
 public class MpaDaoImpl implements MpaDao {
@@ -25,28 +22,16 @@ public class MpaDaoImpl implements MpaDao {
     public Mpa getMpaById(Integer id) {
         String sql = "SELECT * " +
                      "FROM mpas " +
-                     "WHERE mpas_id = ?";
-        SqlRowSet mpaRS = jdbcTemplate.queryForRowSet(sql, id);
-        if (mpaRS.next()) {
-            Mpa mpa = new Mpa();
-            mpa.setId(mpaRS.getInt("mpas_id"));
-            mpa.setName(mpaRS.getString("mpas_name"));
-            return mpa;
-        } else {
-            throw new NotFoundException("Возрастное ограничение с ID: " + id +" не найдено.");
-        }
+                     "WHERE mpas_id = " + id;
+        List<Mpa> mpa = jdbcTemplate.query(sql, new MpaMapper());
+        return mpa.get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
     @Override
     public List<Mpa> getAllMpas() {
         String sql = "SELECT * " +
                      "FROM mpas ORDER BY mpas_id";
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-        List<Mpa> result = new ArrayList<>();
-        list.forEach(m -> {
-            Mpa mpa = new Mpa(((Integer)m.get("mpas_id")), ((String)m.get("mpas_name")));
-            result.add(mpa);
-        });
-        return result;
+        List<Mpa> mpas = jdbcTemplate.query(sql, new MpaMapper());
+        return mpas;
     }
 }
