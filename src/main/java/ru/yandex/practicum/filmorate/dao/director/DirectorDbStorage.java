@@ -35,7 +35,10 @@ public class DirectorDbStorage implements DirectorDao{
 
     @Override
     public List<Director> getAllDirectors() {
-        return null;
+        String sql = "SELECT * " +
+                     "FROM director ";
+        List<Director> directors = jdbcTemplate.query(sql, new DirectorMapper());
+        return directors;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class DirectorDbStorage implements DirectorDao{
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String name = director.getName();
         String sql = "INSERT INTO director (director_name) " +
-                "VALUES ?";
+                     "VALUES ?";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"director_id"});
             ps.setString(1, director.getName());
@@ -55,11 +58,17 @@ public class DirectorDbStorage implements DirectorDao{
 
     @Override
     public Director updateDirector(Director director) {
-        return null;
+        String sql = "UPDATE director " +
+                     "SET director_name = ? " +
+                     "WHERE director_id = ?";
+        jdbcTemplate.update(sql, director.getName(), director.getId());
+        return getDirectorById(director.getId());
     }
 
     @Override
-    public Director deleteDirector(Integer id) {
-        return null;
+    public void deleteDirector(Integer id) {
+        String sql = "DELETE FROM director " +
+                     "WHERE director_id = ?";
+        jdbcTemplate.update(sql, id);
     }
 }
