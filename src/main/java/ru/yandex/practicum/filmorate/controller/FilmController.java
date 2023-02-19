@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.validation.FilmValidation;
-import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -15,44 +13,33 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
-
-    private final FilmValidation filmValidation;
-    private final UserValidation userValidation;
-
-    @GetMapping
-    public Collection<Film> getAllFilms() {
-        return filmService.getAllFilms().values();
+    @PostMapping
+    public Film addFilm(@Valid @RequestBody Film film){
+        return filmService.addFilm(film);
     }
 
     @GetMapping("/{id}")
     public Film geFilmById(@PathVariable Integer id) {
-        filmValidation.filmIdValidation(id);
         return filmService.getFilmById(id);
     }
 
-    @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film){
-        filmValidation.filmValidation(film);
-        return filmService.addFilm(film);
+    @GetMapping
+    public Collection<Film> getAllFilms() {
+        return filmService.getAllFilms();
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film){
-        filmValidation.filmValidation(film);
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId){
-        filmValidation.filmIdValidation(id);
-        userValidation.userIdValidation(userId);
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable int id, @PathVariable int userId){
-        filmValidation.filmIdValidation(id);
-        userValidation.userIdValidation(userId);
         filmService.deleteLike(id, userId);
     }
 

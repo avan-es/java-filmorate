@@ -1,58 +1,70 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.validation.FilmValidation;
+import ru.yandex.practicum.filmorate.validation.GenreValidation;
+import ru.yandex.practicum.filmorate.validation.UserValidation;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage filmStorage;
+    private FilmStorage filmStorage;
 
+    private final FilmValidation filmValidation;
 
-    public Map<Integer, Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    private final GenreValidation genreValidation;
+    private final UserValidation userValidation;
+
+    @Autowired
+    public void setJdbcFilmDAO(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+        this.filmStorage = filmDbStorage;
     }
 
     public Film addFilm(Film film) {
+        filmValidation.filmValidation(film);
+        if (film.getGenres() != null) {
+            for (int i = 1; i <= film.getGenres().size(); i++) {
+                genreValidation.genreIdValidationDB(i);
+            };
+        }
         return filmStorage.addFilm(film);
     }
 
-    public Film updateFilm(Film film) {
-        return filmStorage.updateFilm(film);
-    }
-
     public Film getFilmById(Integer id) {
+        filmValidation.filmIdValidationDB(id);
         return filmStorage.getFilmById(id);
     }
 
+    public List<Film> getAllFilms() {
+        return filmStorage.getAllFilms();
+    }
+
+    public Film updateFilm(Film film) {
+        filmValidation.filmIdValidationDB(film.getId());
+        return filmStorage.updateFilm(film);
+    }
+
     public void addLike(int id, int userId) {
-        filmStorage.getFilmById(id).getLikes().add(userId);
-        System.out.println("Hi");
+        filmValidation.filmIdValidationDB(id);
+        userValidation.userIdValidationDB(userId);
+        filmStorage.putLike(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
-        filmStorage.getFilmById(id).getLikes().remove(userId);
+        filmValidation.filmIdValidationDB(id);
+        userValidation.userIdValidationDB(userId);
+        filmStorage.deleteLike(id, userId);
     }
 
     public Set<Film> getTopFilms(Integer count) {
-        Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
-            if(o1.getLikes().size() == o2.getLikes().size()) {
-                return o1.getId() - o2.getId();
-
-            } else if (o1.getLikes().size() > o2.getLikes().size()) {
-                return -1;
-        } else {
-            return 1;
-        }
-    });
-        topFilms.addAll(filmStorage.getAllFilms().values());
-        return topFilms.stream().limit(count).collect(Collectors.toSet());
+        return filmStorage.getTopFilms(count);
     }
 }

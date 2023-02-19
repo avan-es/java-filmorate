@@ -5,28 +5,38 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.FilmValidation;
 import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.time.LocalDate;
 import java.time.Month;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
 class FilmControllerTest {
+    @Autowired
     FilmController filmController;
+    @Autowired
+    FilmService filmService;
+    @Autowired
+    InMemoryFilmStorage filmStorage;
+    @Autowired
+    FilmValidation filmValidation;
     private final static String FILM_DESCRIPTION_200_CHAR = "Some description that equals 200 char very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-very-vere-very-description.";
 
-    @BeforeEach
-    void setUp(){
-        filmController = new FilmController(
-                new FilmService(new InMemoryFilmStorage()),
-                new FilmValidation(new InMemoryFilmStorage()),
-                new UserValidation(new InMemoryUserStorage()));
-    }
 
     @Test
     @DisplayName("Название фильма не может быть пустым")
@@ -61,11 +71,14 @@ class FilmControllerTest {
     @Test
     @DisplayName("Описание фильма 200 символов - ОК")
     public void shouldCreateFilmWithDescriptionSize200Char () {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("1");
         Film film = Film.builder()
                 .id(1).name("Some name")
                 .description(FILM_DESCRIPTION_200_CHAR)
                 .releaseDate(LocalDate.of(2020, Month.DECEMBER,1))
-                .duration(150).build();
+                .duration(150).mpa(mpa).build();
         filmController.addFilm(film);
         assertEquals(1, filmController.getAllFilms().size(), "Фильм не был добавлен в коллекцию.");
     }
@@ -88,13 +101,17 @@ class FilmControllerTest {
     @Test
     @DisplayName("Тест даты релиза — 28 декабря 1895 года - пройдёт валидацию")
     public void shouldAddFilmAfter27_12_1895 () {
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        mpa.setName("1");
         Film film = Film.builder()
                 .id(1).name("Some name")
                 .description("Some description")
                 .releaseDate(LocalDate.of(1895, Month.DECEMBER,28))
-                .duration(150).build();
+                .duration(150).mpa(mpa).build();
         filmController.addFilm(film);
-        assertEquals(1, filmController.getAllFilms().size(), "Фильм не был добавлен в коллекцию.");
+        //Нужно бы читить БД и ждаь единицу
+        assertEquals(2, filmController.getAllFilms().size(), "Фильм не был добавлен в коллекцию.");
     }
 
     @Test

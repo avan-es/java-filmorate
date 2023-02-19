@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.UserExeptions.UserValidationException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exeptions.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage{
 
     private final HashMap<Integer, User> users = new HashMap<>();
@@ -23,21 +23,19 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User getUser(int id) {
+    public User getUserById(Integer id) {
         return users.get(id);
     }
 
     @Override
     public User updateUser(User user) {
         if (!users.containsKey(user.getId())) {
-            throw new UserNotFoundException("Пользователь с ID: " + user.getId() +
-                    " не найден.");
+            throw new NotFoundException(String.format("Пользователь с ID %d не найден.", user.getId()));
         }
         users.put(user.getId(), user);
         return user;
     }
 
-    @Override
     public User deleteUser(User user) {
         if (!users.containsKey((user.getId()))){
             throw new UserValidationException("Пользователь с почтой (" + user.getEmail() +
@@ -46,6 +44,38 @@ public class InMemoryUserStorage implements UserStorage{
         users.remove(user.getId());
         return user;
     }
+
+    @Override
+    public String addFriend(Integer id, Integer friendId) {
+        users.get(id).getFriends().add(friendId);
+        return String.format("Пользователи с ID %d и %d теперь друзья!", id, friendId);
+    }
+
+    @Override
+    public List<User> getFriends(Integer id) {
+        return users.get(id).getFriends()
+                .stream()
+                .map(users::get).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
+        Set<Integer> commonFriendsId = new HashSet<>(users.get(id).getFriends());
+        commonFriendsId.retainAll(users.get(otherId).getFriends());
+        List<User> commonFriends = new ArrayList<>();
+        for (int userId : commonFriendsId) {
+            commonFriends.add(users.get(userId));
+        }
+        return commonFriends;
+    }
+
+    @Override
+    public String deleteFriend(Integer id, Integer friendId) {
+        users.get(id).getFriends().remove(friendId);
+        users.get(friendId).getFriends().remove(id);
+        return String.format("Пользователи с ID %d и %d больше не друзья.", id, friendId);
+    }
+
 
     @Override
     public Map<Integer, User> getAllUsers() {

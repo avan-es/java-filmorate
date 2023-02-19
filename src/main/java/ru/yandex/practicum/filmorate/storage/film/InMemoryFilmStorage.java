@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exeptions.FilmExeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@Component
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage{
 
     private final HashMap<Integer, Film> films = new HashMap<>();
@@ -32,13 +32,11 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film deleteFilm(Film film) {
+    public void deleteFilm(Film film) {
         if (!films.containsKey(film.getId())) {
-            throw new FilmNotFoundException("Фильм с ID: " + film.getId() +
-                    " не найден.");
+            throw new NotFoundException(String.format("Фильм с ID %d не найден.", film.getId()));
         }
         films.remove(film.getId());
-        return film;
     }
 
     @Override
@@ -47,7 +45,36 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Map<Integer, Film> getAllFilms() {
-        return films;
+    public void putLike(Integer filmId, Integer userId) {
+        films.get(filmId).getLikes().add(userId);
+    }
+
+    @Override
+    public void deleteLike(Integer filmId, Integer userId) {
+        films.get(filmId).getLikes().remove(userId);
+    }
+
+    @Override
+    public Set <Film> getTopFilms(Integer limit) {
+        Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
+            if(o1.getLikes().size() == o2.getLikes().size()) {
+                return o1.getId() - o2.getId();
+
+            } else if (o1.getLikes().size() > o2.getLikes().size()) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        topFilms.addAll(getAllFilms());
+        return topFilms.stream().limit(limit).collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<Film> getAllFilms() {
+        return films.entrySet()
+                .stream()
+                .map (e -> e.getValue())
+                .collect(Collectors.toList());
     }
 }

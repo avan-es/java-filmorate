@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,11 +17,12 @@ import java.util.Set;
  * @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor
  * */
 @Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class Film {
     private final Set<Integer> likes = new HashSet<>();
     @PositiveOrZero
     private int id;
-    @NotNull @NotBlank
     private String name;
     @Builder.Default
     private String description = "Описание не было заполнено!";
@@ -29,4 +30,6 @@ public class Film {
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
+    private ArrayList<Genre> genres;
+    private Mpa mpa;
 }

@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 public class FilmorateApplication {
 
 	public static void main(String[] args) {
-		ApplicationContext context = SpringApplication.run(FilmorateApplication.class, args);
+		SpringApplication.run(FilmorateApplication.class, args);
 	}
 
 }
