@@ -32,4 +32,5 @@ public class Film {
     private int duration = 0;
     private ArrayList<Genre> genres;
     private Mpa mpa;
+    private Set<Director> directors;
 }
