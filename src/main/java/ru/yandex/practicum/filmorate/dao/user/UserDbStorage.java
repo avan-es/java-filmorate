@@ -6,9 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.user.UserMapper;
-import ru.yandex.practicum.filmorate.exeptions.AddToFriendsException;
-import ru.yandex.practicum.filmorate.exeptions.UserValidationException;
+import ru.yandex.practicum.filmorate.exeptions.FriendsException;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -75,7 +74,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public String addFriend(Integer fromUserId, Integer toUserId){
         if (fromUserId.equals(toUserId)) {
-            throw new AddToFriendsException("Нельзя добавить себя к себе в друзья.");
+            throw new FriendsException("Нельзя добавить себя к себе в друзья.");
         }
         getUserById(fromUserId);
         getUserById(toUserId);
@@ -94,7 +93,7 @@ public class UserDbStorage implements UserStorage {
         }
         userRows = jdbcTemplate.queryForRowSet(sqlFrom, fromUserId, toUserId);
         if (userRows.next()){
-            throw new AddToFriendsException("Запрос на добавление в друзья уже существует.");
+            throw new FriendsException("Запрос на добавление в друзья уже существует.");
         }
         jdbcTemplate.update("INSERT INTO friends (from_user, to_user) " +
                                 "VALUES (?, ?)", fromUserId, toUserId);
@@ -143,7 +142,7 @@ public class UserDbStorage implements UserStorage {
                                     "AND to_user = ?", id, friendId);
             return String.format("Пользователь с идентификатором %d удален из друзей пользователя с идентификатором %d.", friendId, id);
         } else {
-            throw new UserValidationException("Нельзя удалить пользователя из друзей, если он не является вашим другом.");
+            throw new NotFoundException("Нельзя удалить пользователя из друзей, если он не является вашим другом.");
         }
     }
 
