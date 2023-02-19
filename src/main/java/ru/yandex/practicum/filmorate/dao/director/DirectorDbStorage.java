@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
+
 @Component("directorDbStorage")
 @Repository
 public class DirectorDbStorage implements DirectorDao{
@@ -24,7 +26,11 @@ public class DirectorDbStorage implements DirectorDao{
 
     @Override
     public Director getDirectorById(Integer id) {
-        return null;
+        String sql = "SELECT * " +
+                     "FROM director " +
+                     "WHERE director_id = " + id;
+        List<Director> directors = jdbcTemplate.query(sql, new DirectorMapper());
+        return directors.get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
 
     @Override
@@ -43,7 +49,7 @@ public class DirectorDbStorage implements DirectorDao{
             ps.setString(1, director.getName());
             return ps;
         }, keyHolder);
-
+        director.setId(keyHolder.getKey().intValue());
         return director;
     }
 
