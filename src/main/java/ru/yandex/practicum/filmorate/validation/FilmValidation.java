@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeptions.FilmValidationException;
+import ru.yandex.practicum.filmorate.exeptions.ModelValidationException;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -30,17 +30,17 @@ public class FilmValidation {
     public Film filmValidation(Film film) {
         if (film.getName().isEmpty() ||
                 film.getName().isBlank()) {
-            throw new FilmValidationException("Название фильма не может быть пустым.");
+            throw new ModelValidationException("Название фильма не может быть пустым.");
         }
         if (film.getDescription().length() > 200) {
-            throw new FilmValidationException("Максимальная длина описания для фильма — 200 символов.");
+            throw new ModelValidationException("Максимальная длина описания для фильма — 200 символов.");
         }
         if (film.getReleaseDate().isBefore(FILMS_BIRTHDAY) ||
                 film.getReleaseDate().isAfter(LocalDate.now())) {
-            throw new FilmValidationException("Дата релиза введена не корректно.");
+            throw new ModelValidationException("Дата релиза введена не корректно.");
         }
         if (film.getDuration() <= 0) {
-            throw new FilmValidationException("Продолжительность фильма должна быть положительной.");
+            throw new ModelValidationException("Продолжительность фильма должна быть положительной.");
         }
         return film;
     }
