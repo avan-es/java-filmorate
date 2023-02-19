@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dao.impl;
+package ru.yandex.practicum.filmorate.dao.film;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;

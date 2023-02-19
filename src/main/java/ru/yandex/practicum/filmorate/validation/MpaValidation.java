@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
+import ru.yandex.practicum.filmorate.dao.mpa.MpaDao;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 
 @Component("mpaValidation")
