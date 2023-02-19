@@ -13,7 +13,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final NotFoundException e) {
         return new ErrorResponse(
-                "Ошибка в запросе.",
+                "Объект не найден.",
                 e.getMessage());
     }
 
@@ -29,7 +29,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleAddToFriendsException(final FriendsException e) {
         return new ErrorResponse(
-                "Ошибка при добавлении в друзья.",
+                "Ошибка обработки запроса (Категория 'Друзья')",
                 e.getMessage());
     }
 

@@ -49,17 +49,20 @@ public class UserValidation {
     }
 
     public void userIdValidationDB(int id) {
-        String sqlRequest =  "select * " +
-                "from PUBLIC.USERS where USER_ID = " + id;
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
-        if (!userRows.next()) {
+        String sqlRequest = "SELECT user_id " +
+                            "FROM users " +
+                            "WHERE user_id = " + id +
+                            " FETCH FIRST 1 ROWS ONLY";
+        if (!jdbcTemplate.queryForRowSet(sqlRequest).next()) {
             throw new NotFoundException(String.format("Пользователь с ID %d не найден.", id));
         }
     }
 
     public void userLoginIsBusy (User user) {
-        String sqlRequest =  "select LOGIN " +
-                "from PUBLIC.USERS where LOGIN = " + user.getLogin();
+        String sqlRequest = "SELECT login " +
+                            "FROM users " +
+                            "WHERE login = " + user.getLogin() +
+                            " FETCH FIRST 1 ROWS ONLY";
         try {
             SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
             if (userRows.next()) {
@@ -81,7 +84,7 @@ public class UserValidation {
 
     public boolean isUserPresent(User user){
         String sqlRequest =  "select USER_ID " +
-                "from PUBLIC.USERS where USER_ID = " + user.getId();
+                "from PUBLIC.USERS where USER_ID = " + user.getId() + " FETCH FIRST 1 ROWS ONLY";
         try {
             SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlRequest);
             if (!userRows.next()) {
