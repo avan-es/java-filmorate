@@ -9,5 +9,5 @@ public interface DirectorDao {
     List<Director> getAllDirectors();
     Director addDirector (Director director);
     Director updateDirector (Director director);
-    Director deleteDirector (Integer id);
+    void deleteDirector (Integer id);
 }
