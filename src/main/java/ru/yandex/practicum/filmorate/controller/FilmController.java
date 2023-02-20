@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,5 +47,11 @@ public class FilmController {
     @GetMapping("/popular")
     public Collection<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
         return filmService.getTopFilms(count);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> searchDirectorsFilms(@PathVariable Integer directorId,
+                                           @RequestParam("sortBy") List<String> sortBy) {
+        return filmService.searchDirectorsFilms(directorId, sortBy);
     }
 }
