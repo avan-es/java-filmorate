@@ -2,9 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,7 +23,6 @@ public class Film {
     private String name;
     @Builder.Default
     private String description = "Описание не было заполнено!";
-    @PastOrPresent
     private LocalDate releaseDate;
     @Builder.Default
     private int duration = 0;
