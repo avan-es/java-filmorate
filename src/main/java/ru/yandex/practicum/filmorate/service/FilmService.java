@@ -5,13 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.validation.DirectorValidation;
 import ru.yandex.practicum.filmorate.validation.FilmValidation;
 import ru.yandex.practicum.filmorate.validation.GenreValidation;
 import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,7 @@ public class FilmService {
 
     private final GenreValidation genreValidation;
     private final UserValidation userValidation;
+    private final DirectorValidation directorValidation;
 
     @Autowired
     public void setJdbcFilmDAO(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
@@ -66,5 +72,14 @@ public class FilmService {
 
     public Set<Film> getTopFilms(Integer count) {
         return filmStorage.getTopFilms(count);
+    }
+
+    public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
+        directorValidation.directorIDValidation(directorId);
+        sortBy.replaceAll(String::toUpperCase);
+        if (!sortBy.contains(YEAR.toString()) && !sortBy.contains(LIKES.toString())) {
+            throw new NotFoundException("Сортировка фильмов режиссёра возможна только по годам или лайкам.");
+        }
+        return filmStorage.searchDirectorsFilms(directorId, sortBy);
     }
 }

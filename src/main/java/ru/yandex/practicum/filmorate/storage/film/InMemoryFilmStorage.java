@@ -69,6 +69,12 @@ public class InMemoryFilmStorage implements FilmStorage{
         return topFilms.stream().limit(limit).collect(Collectors.toSet());
     }
 
+    //TODO реализовать метод
+    @Override
+    public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
+        return null;
+    }
+
     @Override
     public List<Film> getAllFilms() {
         return films.entrySet()
