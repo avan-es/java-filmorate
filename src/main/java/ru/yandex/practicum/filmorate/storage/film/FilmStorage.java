@@ -21,4 +21,6 @@ public interface FilmStorage {
     void deleteLike (Integer filmId, Integer userId);
 
     Set<Film> getTopFilms(Integer limit);
+
+    List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy);
 }
