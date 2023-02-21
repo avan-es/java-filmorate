@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,4 +56,15 @@ public class FilmController {
                                            @RequestParam("sortBy") List<String> sortBy) {
         return filmService.searchDirectorsFilms(directorId, sortBy);
     }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam("query") @NotBlank @NotEmpty String query,
+                                  @RequestParam("by") List<String> by) {
+        return filmService.searchFilms(query, by);
+    }
+
+//    @DeleteMapping("/{filmId}")
+//    public void deleteFilm(@PathVariable int filmId){
+//        filmService.deleteFilm(filmId);
+//    }
 }

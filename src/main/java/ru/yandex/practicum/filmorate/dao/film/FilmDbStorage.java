@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -25,6 +26,17 @@ import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+
+    private static final String BASIC_SQL_REQUEST_FOR_FILM =
+            "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
+                    "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name, " +
+                    "COUNT(likes.film_id) AS likes_count " +
+                    "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
+                    "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
+                    "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
+                    "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
+                    "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
+                    "LEFT JOIN director d ON fd.director_id = d.director_id ";
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -89,15 +101,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(Integer id) {
-        String sqlFilm = "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
-                         "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name " +
-                         "FROM films f " +
-                         "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
-                         "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
-                         "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                         "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                         "LEFT JOIN director d ON fd.director_id = d.director_id " +
-                         "WHERE f.film_id = " + id;
+        String sqlFilm = BASIC_SQL_REQUEST_FOR_FILM +
+                         "WHERE f.film_id = " + id +
+                         " GROUP BY g.genre_id";
         List<Film> film = jdbcTemplate.query(sqlFilm, new FilmMapper());
         return Objects.requireNonNull(film).get(INDEX_FOR_LIST_WITH_ONE_ELEMENT);
     }
@@ -105,14 +111,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getAllFilms() {
         List<Film> films;
-        String sqlFilm = "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
-                         "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name " +
-                         "FROM films f " +
-                         "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
-                         "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
-                         "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                         "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                         "LEFT JOIN director d ON fd.director_id = d.director_id";
+        String sqlFilm = BASIC_SQL_REQUEST_FOR_FILM +
+                "GROUP BY f.film_id, g.genre_id";
         films = jdbcTemplate.query(sqlFilm, new FilmMapper());
         return films;
     }
@@ -133,15 +133,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getTopFilms(Integer limit) {
-        String sql = ("SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
-                      "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name, " +
-                      "COUNT(likes.film_id) AS likes_count " +
-                      "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
-                      "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
-                      "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
-                      "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                      "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                      "LEFT JOIN director d ON fd.director_id = d.director_id " +
+        String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                       "GROUP BY f.film_id, g.genre_id " +
                       "ORDER BY likes_count DESC " +
                       "FETCH FIRST " + limit +" ROWS ONLY");
@@ -154,34 +146,50 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         List<Film> films = new ArrayList<>();
         if (sortBy.contains(YEAR.toString())) {
-            String sql = ("SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
-                    "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name " +
-                    "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
-                    "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
-                    "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
-                    "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                    "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                    "LEFT JOIN director d ON fd.director_id = d.director_id " +
+            String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY f.release_date ASC");
             films = jdbcTemplate.query(sql, new FilmMapper());
         } else if (sortBy.contains(LIKES.toString())) {
-            String sql = ("SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
-                    "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name, " +
-                    "COUNT(likes.film_id) AS likes_count " +
-                    "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
-                    "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
-                    "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
-                    "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
-                    "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
-                    "LEFT JOIN director d ON fd.director_id = d.director_id " +
+            String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY likes_count DESC ");
             films = jdbcTemplate.query(sql, new FilmMapper());
         }
         return films;
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, SearchBy type) {
+        String sql;
+        List<Film> result = new ArrayList<>();
+        switch (type) {
+            case BOTH:
+                sql =BASIC_SQL_REQUEST_FOR_FILM +
+                        "WHERE (f.film_name ILIKE '%" + query + "%')" +
+                        "GROUP BY m.mpas_id " +
+                        "UNION " +
+                        BASIC_SQL_REQUEST_FOR_FILM +
+                        "WHERE (d.director_name ILIKE '%" + query + "%')" +
+                        "GROUP BY m.mpas_id " +
+                        "ORDER BY film_id DESC;";
+                result = jdbcTemplate.query(sql, new FilmMapper());
+                System.out.println(result);
+                break;
+            case TITLE:
+                sql = BASIC_SQL_REQUEST_FOR_FILM +
+                        "WHERE f.film_name ILIKE '%" + query + "%'";
+                result = jdbcTemplate.query(sql, new FilmMapper());
+                break;
+            case DIRECTOR:
+                sql = BASIC_SQL_REQUEST_FOR_FILM +
+                        "WHERE d.director_name ILIKE '%" + query + "%'";
+                result = jdbcTemplate.query(sql, new FilmMapper());
+                break;
+        }
+        return result;
     }
 
     @Override
@@ -224,11 +232,11 @@ public class FilmDbStorage implements FilmStorage {
         return getFilmById(film.getId());
     }
 
-    @Override
-    public void deleteFilm(Film film) {
-        String sqlRequest =  "DELETE " +
-                             "FROM films " +
-                             "WHERE film_id = " + film.getId();
-        jdbcTemplate.queryForRowSet(sqlRequest);
-    }
+//    @Override
+//    public void deleteFilm(Integer filmId) {
+//        String sqlRequest =  "DELETE " +
+//                             "FROM films " +
+//                             "WHERE film_id = " + filmId;
+//        jdbcTemplate.update(sqlRequest);
+//    }
 }

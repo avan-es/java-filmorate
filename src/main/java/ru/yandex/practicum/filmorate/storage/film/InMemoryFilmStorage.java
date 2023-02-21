@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -30,13 +31,13 @@ public class InMemoryFilmStorage implements FilmStorage{
         return film;
     }
 
-    @Override
-    public void deleteFilm(Film film) {
-        if (!films.containsKey(film.getId())) {
-            throw new NotFoundException(String.format("Фильм с ID %d не найден.", film.getId()));
-        }
-        films.remove(film.getId());
-    }
+//    @Override
+//    public void deleteFilm(Integer filmId) {
+//        if (!films.containsKey(filmId)) {
+//            throw new NotFoundException(String.format("Фильм с ID %d не найден.", filmId));
+//        }
+//        films.remove(filmId);
+//    }
 
     @Override
     public Film getFilmById(Integer id) {
@@ -72,6 +73,12 @@ public class InMemoryFilmStorage implements FilmStorage{
     //TODO реализовать метод
     @Override
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
+        return null;
+    }
+
+    //TODO реализовать метод
+    @Override
+    public List<Film> searchFilms(String query, SearchBy type) {
         return null;
     }
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -17,6 +18,8 @@ import java.util.*;
 
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
+import static ru.yandex.practicum.filmorate.constants.SearchBy.DIRECTOR;
+import static ru.yandex.practicum.filmorate.constants.SearchBy.TITLE;
 
 @Service
 @RequiredArgsConstructor
@@ -82,4 +85,21 @@ public class FilmService {
         }
         return filmStorage.searchDirectorsFilms(directorId, sortBy);
     }
+
+    public List<Film> searchFilms(String query, List<String> by) {
+        by.replaceAll(String::toUpperCase);
+        if (by.contains(DIRECTOR.toString()) && by.contains(TITLE.toString())) {
+            return filmStorage.searchFilms(query, SearchBy.BOTH);
+        } else if (by.contains(TITLE.toString())) {
+            return filmStorage.searchFilms(query, TITLE);
+        } else if (by.contains(DIRECTOR.toString())) {
+            return filmStorage.searchFilms(query, DIRECTOR);
+        }
+        throw new NotFoundException("Поля для поиска не заданы. Поиск возможен только по названию и/или режиссёру.");
+    }
+
+//    public void deleteFilm(int filmId) {
+//        filmValidation.filmIdValidationDB(filmId);
+//        filmStorage.deleteFilm(filmId);
+//    }
 }

@@ -62,4 +62,8 @@ public class UserService {
         return userStorage.deleteFriend(id, friendId);
     }
 
+//    public void deleteUser(Integer id) {
+//        userValidation.userIdValidationDB(id);
+//        userStorage.deleteUser(id);
+//    }
 }
