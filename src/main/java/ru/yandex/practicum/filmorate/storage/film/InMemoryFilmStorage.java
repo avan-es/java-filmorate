@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -72,6 +73,12 @@ public class InMemoryFilmStorage implements FilmStorage{
     //TODO реализовать метод
     @Override
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
+        return null;
+    }
+
+    //TODO реализовать метод
+    @Override
+    public List<Film> searchFilms(String query, SearchBy type) {
         return null;
     }
 

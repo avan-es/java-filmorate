@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
+import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface FilmStorage {
     Set<Film> getTopFilms(Integer limit);
 
     List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy);
+
+    List<Film> searchFilms(String query, SearchBy type);
 }
