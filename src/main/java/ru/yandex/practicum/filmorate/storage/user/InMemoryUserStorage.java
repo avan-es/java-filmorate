@@ -75,6 +75,12 @@ public class InMemoryUserStorage implements UserStorage{
         return String.format("Пользователи с ID %d и %d больше не друзья.", id, friendId);
     }
 
+    //TODO реализовать метод
+    @Override
+    public void deleteUser(Integer id) {
+
+    }
+
 
     @Override
     public Map<Integer, User> getAllUsers() {
