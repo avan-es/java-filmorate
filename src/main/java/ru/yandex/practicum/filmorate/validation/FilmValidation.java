@@ -13,14 +13,13 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.time.LocalDate;
 import java.time.Month;
 
+import static ru.yandex.practicum.filmorate.constants.Constants.FILMS_BIRTHDAY;
+
 //@RequiredArgsConstructor
 @Component("filmValidation")
 public class FilmValidation {
     @Qualifier("filmDbStorage")
     private FilmStorage filmStorage;
-
-    public static final LocalDate FILMS_BIRTHDAY = LocalDate.of(1895, Month.DECEMBER, 28);
-
     private final JdbcTemplate jdbcTemplate;
     @Autowired
     public FilmValidation(JdbcTemplate jdbcTemplate) {
