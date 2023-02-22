@@ -84,6 +84,12 @@ public class InMemoryFilmStorage implements FilmStorage{
         return null;
     }
 
+    //TODO реализовать метод
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        return null;
+    }
+
     @Override
     public List<Film> getAllFilms() {
         return films.entrySet()
