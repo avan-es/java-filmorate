@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.constants.SearchBy;
+import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,8 +18,8 @@ import java.util.*;
 
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
-import static ru.yandex.practicum.filmorate.constants.SearchBy.DIRECTOR;
-import static ru.yandex.practicum.filmorate.constants.SearchBy.TITLE;
+import static ru.yandex.practicum.filmorate.constants.SearchParam.DIRECTOR;
+import static ru.yandex.practicum.filmorate.constants.SearchParam.TITLE;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +73,7 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public Set<Film> getTopFilms(Map<String, Integer> searchParam) {
+    public Set<Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
         return filmStorage.getTopFilms(searchParam);
     }
 
@@ -89,7 +89,7 @@ public class FilmService {
     public List<Film> searchFilms(String query, List<String> by) {
         by.replaceAll(String::toUpperCase);
         if (by.contains(DIRECTOR.toString()) && by.contains(TITLE.toString())) {
-            return filmStorage.searchFilms(query, SearchBy.BOTH);
+            return filmStorage.searchFilms(query, SearchParam.BOTH);
         } else if (by.contains(TITLE.toString())) {
             return filmStorage.searchFilms(query, TITLE);
         } else if (by.contains(DIRECTOR.toString())) {

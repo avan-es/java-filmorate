@@ -8,7 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.constants.SearchBy;
+import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.dao.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -134,7 +134,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Film> getTopFilms(Map<String, Integer> searchParam) {
+    public Set<Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
         List<Film> films = new ArrayList<>();
         String sql = BASIC_SQL_REQUEST_FOR_FILM;
         if (searchParam.containsKey("year") && searchParam.containsKey("genre")) {
@@ -188,7 +188,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> searchFilms(String query, SearchBy type) {
+    public List<Film> searchFilms(String query, SearchParam type) {
         String sql;
         List<Film> result = new ArrayList<>();
         switch (type) {

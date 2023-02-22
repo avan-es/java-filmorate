@@ -1,12 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.constants.SearchBy;
+import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.constants.SearchParam.LIMIT;
 
 @Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage{
@@ -55,7 +57,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Set <Film> getTopFilms(Map<String, Integer> searchParam) {
+    public Set <Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
         Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
             if(o1.getLikes().size() == o2.getLikes().size()) {
                 return o1.getId() - o2.getId();
@@ -67,7 +69,7 @@ public class InMemoryFilmStorage implements FilmStorage{
             }
         });
         topFilms.addAll(getAllFilms());
-        return topFilms.stream().limit(searchParam.get("count")).collect(Collectors.toSet());
+        return topFilms.stream().limit(searchParam.get(LIMIT)).collect(Collectors.toSet());
     }
 
     //TODO реализовать метод
@@ -78,7 +80,7 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     //TODO реализовать метод
     @Override
-    public List<Film> searchFilms(String query, SearchBy type) {
+    public List<Film> searchFilms(String query, SearchParam type) {
         return null;
     }
 
