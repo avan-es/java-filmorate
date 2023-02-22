@@ -98,8 +98,8 @@ public class FilmService {
         throw new NotFoundException("Поля для поиска не заданы. Поиск возможен только по названию и/или режиссёру.");
     }
 
-//    public void deleteFilm(int filmId) {
-//        filmValidation.filmIdValidationDB(filmId);
-//        filmStorage.deleteFilm(filmId);
-//    }
+    public void deleteFilm(int filmId) {
+        filmValidation.filmIdValidationDB(filmId);
+        filmStorage.deleteFilm(filmId);
+    }
 }
