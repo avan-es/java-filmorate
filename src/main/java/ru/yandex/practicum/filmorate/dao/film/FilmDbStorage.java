@@ -21,8 +21,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_YEAR;
+import static ru.yandex.practicum.filmorate.constants.SearchParam.*;
 
 @Component("filmDbStorage")
 @Repository
@@ -137,21 +138,22 @@ public class FilmDbStorage implements FilmStorage {
     public Set<Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
         List<Film> films = new ArrayList<>();
         String sql = BASIC_SQL_REQUEST_FOR_FILM;
-        if (searchParam.containsKey("year") && searchParam.containsKey("genre")) {
+        if (searchParam.containsKey(YEAR) && searchParam.containsKey(GENRE)) {
             sql = sql +
-                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get("year") +
-                    " AND g.genre_id = " + searchParam.get("genre");
-        } else if (searchParam.containsKey("year")) {
+                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get(YEAR) +
+                    " AND g.genre_id = " + searchParam.get(GENRE);
+        } else if (searchParam.containsKey(YEAR)) {
             sql = sql +
-                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get("year");
-        } else if (searchParam.containsKey("genre")) {
+                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get(YEAR);
+
+        } else if (searchParam.containsKey(GENRE)) {
             sql = sql +
-                    "WHERE g.genre_id = " + searchParam.get("genre");
+                    "WHERE g.genre_id = " + searchParam.get(GENRE);
         }
             sql = sql +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY likes_count DESC " +
-                    "FETCH FIRST " + searchParam.get("count") +" ROWS ONLY";
+                    "FETCH FIRST " + searchParam.get(LIMIT) +" ROWS ONLY";
 
         films = jdbcTemplate.query(sql, new FilmMapper());
         for (Film film: films) {
@@ -171,13 +173,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         List<Film> films = new ArrayList<>();
-        if (sortBy.contains(YEAR.toString())) {
+        if (sortBy.contains(FILM_SORT_BY_YEAR.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY f.release_date ASC");
             films = jdbcTemplate.query(sql, new FilmMapper());
-        } else if (sortBy.contains(LIKES.toString())) {
+        } else if (sortBy.contains(FILM_SORT_BY_LIKES.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +

@@ -16,8 +16,8 @@ import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.util.*;
 
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_YEAR;
 import static ru.yandex.practicum.filmorate.constants.SearchParam.DIRECTOR;
 import static ru.yandex.practicum.filmorate.constants.SearchParam.TITLE;
 
@@ -80,7 +80,7 @@ public class FilmService {
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         directorValidation.directorIDValidation(directorId);
         sortBy.replaceAll(String::toUpperCase);
-        if (!sortBy.contains(YEAR.toString()) && !sortBy.contains(LIKES.toString())) {
+        if (!sortBy.contains(FILM_SORT_BY_YEAR.toString()) && !sortBy.contains(FILM_SORT_BY_LIKES.toString())) {
             throw new NotFoundException("Сортировка фильмов режиссёра возможна только по годам или лайкам.");
         }
         return filmStorage.searchDirectorsFilms(directorId, sortBy);
