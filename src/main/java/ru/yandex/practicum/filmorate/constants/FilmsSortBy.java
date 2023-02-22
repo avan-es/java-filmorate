@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.constants;
 
 public enum FilmsSortBy {
-    YEAR,
-    LIKES
+    FILM_SORT_BY_YEAR,
+    FILM_SORT_BY_LIKES
 }

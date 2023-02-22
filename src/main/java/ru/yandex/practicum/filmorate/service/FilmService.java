@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.constants.SearchBy;
+import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exeptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,10 +16,10 @@ import ru.yandex.practicum.filmorate.validation.UserValidation;
 
 import java.util.*;
 
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
-import static ru.yandex.practicum.filmorate.constants.SearchBy.DIRECTOR;
-import static ru.yandex.practicum.filmorate.constants.SearchBy.TITLE;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_YEAR;
+import static ru.yandex.practicum.filmorate.constants.SearchParam.DIRECTOR;
+import static ru.yandex.practicum.filmorate.constants.SearchParam.TITLE;
 
 @Service
 @RequiredArgsConstructor
@@ -73,14 +73,14 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public Set<Film> getTopFilms(Integer count) {
-        return filmStorage.getTopFilms(count);
+    public Set<Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
+        return filmStorage.getTopFilms(searchParam);
     }
 
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         directorValidation.directorIDValidation(directorId);
         sortBy.replaceAll(String::toUpperCase);
-        if (!sortBy.contains(YEAR.toString()) && !sortBy.contains(LIKES.toString())) {
+        if (!sortBy.contains(FILM_SORT_BY_YEAR.toString()) && !sortBy.contains(FILM_SORT_BY_LIKES.toString())) {
             throw new NotFoundException("Сортировка фильмов режиссёра возможна только по годам или лайкам.");
         }
         return filmStorage.searchDirectorsFilms(directorId, sortBy);
@@ -89,7 +89,7 @@ public class FilmService {
     public List<Film> searchFilms(String query, List<String> by) {
         by.replaceAll(String::toUpperCase);
         if (by.contains(DIRECTOR.toString()) && by.contains(TITLE.toString())) {
-            return filmStorage.searchFilms(query, SearchBy.BOTH);
+            return filmStorage.searchFilms(query, SearchParam.BOTH);
         } else if (by.contains(TITLE.toString())) {
             return filmStorage.searchFilms(query, TITLE);
         } else if (by.contains(DIRECTOR.toString())) {

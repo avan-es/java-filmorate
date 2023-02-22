@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.constants;
 
-public enum SearchBy {
+public enum SearchParam {
     BOTH,
     DIRECTOR,
-    TITLE
+    TITLE,
+    YEAR,
+    GENRE,
+    LIMIT
 }
