@@ -221,6 +221,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sql = BASIC_SQL_REQUEST_FOR_FILM +
+                "INNER JOIN LIKES AS l1 ON f.film_id  = l1.film_id  AND l1.user_id = ?" +
+                "INNER JOIN LIKES AS l2 ON f.film_id = l2.film_id AND l2.user_id = ?" +
+                "GROUP BY f.film_id, g.genre_id ";
+        List<Film> films = jdbcTemplate.query(sql, new FilmMapper(), userId, friendId);
+        return films;
+    }
+
+    @Override
     public Film updateFilm(Film film) {
         List<Integer> genresList = new ArrayList<>();
         List<Integer> directorList = new ArrayList<>();

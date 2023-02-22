@@ -102,4 +102,10 @@ public class FilmService {
         filmValidation.filmIdValidationDB(filmId);
         filmStorage.deleteFilm(filmId);
     }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userValidation.userIdValidationDB(userId);
+        userValidation.userIdValidationDB(friendId);
+        return filmStorage.getCommonFilms (userId, friendId);
+    }
 }
