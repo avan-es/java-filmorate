@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.constants.SearchBy;
+import ru.yandex.practicum.filmorate.dao.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -17,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
@@ -30,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     private static final String BASIC_SQL_REQUEST_FOR_FILM =
             "SELECT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
                     "m.mpas_id, m.mpas_name, g.genre_id, g.genre_name, d.director_id, d.director_name, " +
-                    "COUNT(likes.film_id) AS likes_count " +
+                    "COUNT(DISTINCT likes.USER_ID) AS likes_count " +
                     "FROM films AS f LEFT JOIN likes ON f.film_id = likes.film_id " +
                     "LEFT JOIN mpas m ON f.mpa_id = m.mpas_id " +
                     "LEFT JOIN films_genres fg ON fg.film_id = f.film_id " +
@@ -132,14 +134,38 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Film> getTopFilms(Integer limit) {
-        String sql = (BASIC_SQL_REQUEST_FOR_FILM +
-                      "GROUP BY f.film_id, g.genre_id " +
-                      "ORDER BY likes_count DESC " +
-                      "FETCH FIRST " + limit +" ROWS ONLY");
-        List<Film> films = jdbcTemplate.query(sql, new FilmMapper());
+    public Set<Film> getTopFilms(Map<String, Integer> searchParam) {
+        List<Film> films = new ArrayList<>();
+        String sql = BASIC_SQL_REQUEST_FOR_FILM;
+        if (searchParam.containsKey("year") && searchParam.containsKey("genre")) {
+            sql = sql +
+                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get("year") +
+                    " AND g.genre_id = " + searchParam.get("genre");
+        } else if (searchParam.containsKey("year")) {
+            sql = sql +
+                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get("year");
+        } else if (searchParam.containsKey("genre")) {
+            sql = sql +
+                    "WHERE g.genre_id = " + searchParam.get("genre");
+        }
+            sql = sql +
+                    " GROUP BY f.film_id, g.genre_id " +
+                    "ORDER BY likes_count DESC " +
+                    "FETCH FIRST " + searchParam.get("count") +" ROWS ONLY";
+
+        films = jdbcTemplate.query(sql, new FilmMapper());
+        for (Film film: films) {
+            film.setGenres(new ArrayList<>(getGenres(film)));
+        }
         assert films != null;
         return new HashSet<>(films);
+    }
+
+
+    private List<Genre> getGenres (Film film){
+        String sql = "SELECT fg.genre_id, g.genre_name FROM films_genres AS fg JOIN genres AS g ON fg.genre_id = g.genre_id WHERE fg.film_id = ?";
+        return jdbcTemplate.query(sql, new GenreMapper(), film.getId()).stream().collect(Collectors.toList());
+
     }
 
     @Override

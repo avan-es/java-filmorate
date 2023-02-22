@@ -3,6 +3,7 @@ import ru.yandex.practicum.filmorate.constants.SearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface FilmStorage {
@@ -21,7 +22,7 @@ public interface FilmStorage {
 
     void deleteLike (Integer filmId, Integer userId);
 
-    Set<Film> getTopFilms(Integer limit);
+    Set<Film> getTopFilms(Map<String, Integer> searchParam);
 
     List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy);
 

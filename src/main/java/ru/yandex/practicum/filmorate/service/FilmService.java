@@ -73,8 +73,8 @@ public class FilmService {
         filmStorage.deleteLike(id, userId);
     }
 
-    public Set<Film> getTopFilms(Integer count) {
-        return filmStorage.getTopFilms(count);
+    public Set<Film> getTopFilms(Map<String, Integer> searchParam) {
+        return filmStorage.getTopFilms(searchParam);
     }
 
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {

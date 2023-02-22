@@ -8,8 +8,10 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import java.util.Collection;
-import java.util.List;
+import javax.validation.constraints.Positive;
+import java.util.*;
+
+import static ru.yandex.practicum.filmorate.constants.Constants.FILMS_BIRTHDAY;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,8 +49,23 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        return filmService.getTopFilms(count);
+    public Collection<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) @Positive Integer count,
+                                        @RequestParam(value = "genreId", required = false) @Positive Optional<Integer> genreId,
+                                        @RequestParam(value = "year", required = false) @Positive Optional<Integer> year) {
+        Map<String, Integer> searchParam = new HashMap<>();
+        searchParam.put("count",count);
+        if ((genreId.isPresent() && genreId.get() > 0) && (year.isPresent() && year.get() >= FILMS_BIRTHDAY.getYear())) {
+            searchParam.put("genre", genreId.get());
+            searchParam.put("year", year.get());
+            return filmService.getTopFilms(searchParam);
+        } else if (genreId.isPresent() && genreId.get() > 0) {
+            searchParam.put("genre", genreId.get());
+            return filmService.getTopFilms(searchParam);
+        } else if (year.isPresent() && year.get() >= FILMS_BIRTHDAY.getYear()) {
+            searchParam.put("year", year.get());
+            return filmService.getTopFilms(searchParam);
+        }
+        return filmService.getTopFilms(searchParam);
     }
 
     @GetMapping("/director/{directorId}")

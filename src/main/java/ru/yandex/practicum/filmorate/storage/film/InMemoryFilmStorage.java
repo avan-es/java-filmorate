@@ -55,7 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Set <Film> getTopFilms(Integer limit) {
+    public Set <Film> getTopFilms(Map<String, Integer> searchParam) {
         Set <Film> topFilms = new TreeSet<>((o1, o2) -> {
             if(o1.getLikes().size() == o2.getLikes().size()) {
                 return o1.getId() - o2.getId();
@@ -67,7 +67,7 @@ public class InMemoryFilmStorage implements FilmStorage{
             }
         });
         topFilms.addAll(getAllFilms());
-        return topFilms.stream().limit(limit).collect(Collectors.toSet());
+        return topFilms.stream().limit(searchParam.get("count")).collect(Collectors.toSet());
     }
 
     //TODO реализовать метод
