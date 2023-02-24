@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.constants.FilmsSortBy;
 import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.dao.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -21,8 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_LIKES;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_YEAR;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
 import static ru.yandex.practicum.filmorate.constants.SearchParam.*;
 
 @Component("filmDbStorage")
@@ -173,13 +174,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         List<Film> films = new ArrayList<>();
-        if (sortBy.contains(FILM_SORT_BY_YEAR.toString())) {
+        if (sortBy.contains(FilmsSortBy.YEAR.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY f.release_date ASC");
             films = jdbcTemplate.query(sql, new FilmMapper());
-        } else if (sortBy.contains(FILM_SORT_BY_LIKES.toString())) {
+        } else if (sortBy.contains(LIKES.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
