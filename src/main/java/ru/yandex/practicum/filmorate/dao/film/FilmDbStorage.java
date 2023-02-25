@@ -92,14 +92,22 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         //Заполняем жанры фильма
+        updateFilmGenres(film);
+        //Заполняем режиссёров
+        updateFilmDirectors(film);
+        return getFilmById(film.getId());
+    }
+
+    private void updateFilmGenres (Film film) {
         if (film.getGenres() != null) {
-            ArrayList<Genre> genres = film.getGenres();
-            String insertFilmGenre = "INSERT INTO films_genres (film_id, genre_id) " +
-                                     "VALUES (?, ?)";
+            Set<Genre> genres = new HashSet<>(film.getGenres());
+            ArrayList<Genre> uniqueGenres = new ArrayList<>(genres);
+                    String insertFilmGenre = "INSERT INTO films_genres (film_id, genre_id) " +
+                    "VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertFilmGenre, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(@NonNull PreparedStatement ps, int i) throws SQLException {
-                    Genre genre = genres.get(i);
+                    Genre genre = uniqueGenres.get(i);
                     ps.setInt(1, film.getId());
                     ps.setInt(2, genre.getId());
                 }
@@ -109,15 +117,18 @@ public class FilmDbStorage implements FilmStorage {
                 }
             });
         }
-        //Заполняем режиссёров
+    }
+
+    private void updateFilmDirectors (Film film) {
         if (film.getDirectors() != null) {
-            ArrayList<Director> directors = film.getDirectors();
+            Set<Director> directors = new HashSet<>(film.getDirectors());
+            ArrayList<Director> uniqueDirectors = new ArrayList<>(directors);
             String insertDirectorsSql = "INSERT INTO films_directors (film_id, director_id) " +
-                                        "VALUES (?, ?)";
+                    "VALUES (?, ?)";
             jdbcTemplate.batchUpdate(insertDirectorsSql, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    Director director = directors.get(i);
+                    Director director = uniqueDirectors.get(i);
                     ps.setInt(1, film.getId());
                     ps.setInt(2, director.getId());
                 }
@@ -127,7 +138,6 @@ public class FilmDbStorage implements FilmStorage {
                 }
             });
         }
-        return getFilmById(film.getId());
     }
 
     @Override
@@ -269,8 +279,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        List<Integer> genresList = new ArrayList<>();
-        List<Integer> directorList = new ArrayList<>();
         String sqlFilm = "UPDATE films SET film_name = ?, film_description = ?, release_date = ?, " +
                          "film_duration = ?, mpa_id = ? " +
                          "WHERE film_id = ?";
@@ -280,30 +288,12 @@ public class FilmDbStorage implements FilmStorage {
                               "FROM films_genres " +
                               "WHERE film_id = ?";
         jdbcTemplate.update(deleteGenres, film.getId());
-        if (film.getGenres() != null) {
-            String insertGenres = "INSERT INTO films_genres (film_id, genre_id) " +
-                    "VALUES (?, ?)";
-            for (Genre genre : film.getGenres()) {
-                if (!genresList.contains(genre.getId())) {
-                    genresList.add(genre.getId());
-                    jdbcTemplate.update(insertGenres, film.getId(), genre.getId());
-                }
-            }
-        }
+        updateFilmGenres(film);
         String deleteDirector = "DELETE " +
                                 "FROM films_directors " +
                                 "WHERE film_id = ?";
         jdbcTemplate.update(deleteDirector, film.getId());
-        if (film.getDirectors() != null) {
-            String insertDirector = "INSERT INTO films_directors (film_id, director_id) " +
-                    "VALUES (?, ?)";
-            for (Director director : film.getDirectors()) {
-                if (!directorList.contains(director.getId())) {
-                    directorList.add(director.getId());
-                    jdbcTemplate.update(insertDirector, film.getId(), director.getId());
-                }
-            }
-        }
+        updateFilmDirectors(film);
         return getFilmById(film.getId());
     }
 
