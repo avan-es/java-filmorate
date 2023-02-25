@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.constants.FilmsSortBy;
 import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.dao.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -21,8 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_LIKES;
-import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.FILM_SORT_BY_YEAR;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
+import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
 import static ru.yandex.practicum.filmorate.constants.SearchParam.*;
 
 @Component("filmDbStorage")
@@ -40,6 +41,33 @@ public class FilmDbStorage implements FilmStorage {
                     "LEFT JOIN genres g ON g.genre_id = fg.genre_id " +
                     "LEFT JOIN films_directors fd ON f.film_id = fd.film_id " +
                     "LEFT JOIN director d ON fd.director_id = d.director_id ";
+
+    private static final String FIRST_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS =
+            "SELECT f.FILM_ID, f.FILM_NAME, f.FILM_DESCRIPTION , f.RELEASE_DATE , f.FILM_DURATION, " +
+            "m.mpas_id , m.MPAS_NAME, " +
+            "fg.genre_id, g.genre_name AS genre, " +
+            "fd.director_id, d.DIRECTOR_NAME AS director, " +
+            "ff.likes " +
+            "FROM films AS f " +
+            "INNER JOIN (SELECT tf.film_id, bf.likes " +
+                        "FROM films AS tf " +
+                                "LEFT OUTER JOIN (SELECT film_id, COUNT(user_id) AS likes " +
+                        "FROM LIKES l " +
+                        "GROUP BY film_id) as bf " +
+                        "ON tf.film_id = bf.film_id " +
+                        "LEFT JOIN films_genres AS fgs " +
+                        "ON tf.film_id = fgs.film_id ";
+    private static final String SECOND_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS =
+            "ON f.film_id = ff.film_id " +
+            "LEFT JOIN MPAS AS m " +
+            "ON f.MPA_ID  = m.MPAS_ID " +
+            "LEFT JOIN FILMs_GENRES AS fg " +
+            "ON f.film_id = fg.film_id " +
+            "LEFT JOIN GENRES AS g " +
+            "ON fg.GENRE_ID  = g.genre_id " +
+            "LEFT JOIN FILMS_DIRECTORS AS fd " +
+            "ON f.film_id = fd.film_id " +
+            "LEFT JOIN DIRECTOR  AS d ON d.director_id = fd.director_id; ";
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -137,23 +165,31 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Set<Film> getTopFilms(Map<SearchParam, Integer> searchParam) {
         List<Film> films = new ArrayList<>();
-        String sql = BASIC_SQL_REQUEST_FOR_FILM;
+        String sql = FIRST_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS;
         if (searchParam.containsKey(YEAR) && searchParam.containsKey(GENRE)) {
             sql = sql +
-                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get(YEAR) +
-                    " AND g.genre_id = " + searchParam.get(GENRE);
+                    "WHERE fgs.genre_id =  " + searchParam.get(GENRE) +
+                    " AND EXTRACT(YEAR FROM tf.release_date) = " + searchParam.get(YEAR) +
+                    "            ORDER BY bf.likes DESC " +
+                    "            LIMIT " + searchParam.get(LIMIT) + ") AS ff " +
+                    SECOND_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS;
         } else if (searchParam.containsKey(YEAR)) {
             sql = sql +
-                    "WHERE EXTRACT(YEAR FROM CAST(f.release_date AS DATE))  = " + searchParam.get(YEAR);
-
+                    "WHERE EXTRACT(YEAR FROM tf.release_date) = " + searchParam.get(YEAR) +
+                    "            ORDER BY bf.likes DESC " +
+                    "            LIMIT " + searchParam.get(LIMIT) + ") AS ff " +
+                    SECOND_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS;
         } else if (searchParam.containsKey(GENRE)) {
             sql = sql +
-                    "WHERE g.genre_id = " + searchParam.get(GENRE);
+                    "WHERE fgs.genre_id =  " + searchParam.get(GENRE) +
+                    "            ORDER BY bf.likes DESC " +
+                    "            LIMIT " + searchParam.get(LIMIT) + ") AS ff " +
+                    SECOND_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS;
         }
-            sql = sql +
-                    " GROUP BY f.film_id, g.genre_id " +
-                    "ORDER BY likes_count DESC " +
-                    "FETCH FIRST " + searchParam.get(LIMIT) +" ROWS ONLY";
+        sql = sql +
+                "            ORDER BY bf.likes DESC " +
+                "            LIMIT " + searchParam.get(LIMIT) + ") AS ff " +
+                SECOND_PART_BASIC_SQL_REQUEST_FOR_MOST_POPULAR_FILMS;
 
         films = jdbcTemplate.query(sql, new FilmMapper());
         for (Film film: films) {
@@ -173,13 +209,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchDirectorsFilms(Integer directorId, List<String> sortBy) {
         List<Film> films = new ArrayList<>();
-        if (sortBy.contains(FILM_SORT_BY_YEAR.toString())) {
+        if (sortBy.contains(FilmsSortBy.YEAR.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
                     "ORDER BY f.release_date ASC");
             films = jdbcTemplate.query(sql, new FilmMapper());
-        } else if (sortBy.contains(FILM_SORT_BY_LIKES.toString())) {
+        } else if (sortBy.contains(LIKES.toString())) {
             String sql = (BASIC_SQL_REQUEST_FOR_FILM +
                     "WHERE d.director_id = " + directorId +
                     " GROUP BY f.film_id, g.genre_id " +
