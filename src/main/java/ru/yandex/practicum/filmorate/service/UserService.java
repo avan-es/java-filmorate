@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidation;
 import java.util.*;
@@ -15,10 +18,17 @@ import java.util.*;
 public class UserService {
     private UserStorage userStorage;
 
+    private FilmStorage filmStorage;
+
     private final UserValidation userValidation;
     @Autowired
-    public void setJdbcFilmDAO(@Qualifier("userDbStorage") UserDbStorage userDbStorage) {
+    public void setJdbcUserDAO(@Qualifier("userDbStorage") UserDbStorage userDbStorage) {
         this.userStorage = userDbStorage;
+    }
+
+    @Autowired
+    public void setJdbcFilmDAO(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+        this.filmStorage = filmDbStorage;
     }
 
     public User addUser(User user) {
@@ -65,5 +75,10 @@ public class UserService {
     public void deleteUser(Integer id) {
         userValidation.userIdValidationDB(id);
         userStorage.deleteUser(id);
+    }
+
+    public List<Film> getRecommendations(Integer id) {
+        userValidation.userIdValidationDB(id);
+        return filmStorage.getRecommendations(id);
     }
 }
