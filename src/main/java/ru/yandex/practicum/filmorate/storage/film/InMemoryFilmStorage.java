@@ -90,6 +90,12 @@ public class InMemoryFilmStorage implements FilmStorage{
         return null;
     }
 
+    //TODO реализовать метод
+    @Override
+    public List<Film> getRecommendations(Integer id) {
+        return null;
+    }
+
     @Override
     public List<Film> getAllFilms() {
         return films.entrySet()

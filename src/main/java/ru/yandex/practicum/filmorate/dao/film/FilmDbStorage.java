@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.dao.genre.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.PreparedStatement;
@@ -22,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.constants.Constants.INDEX_FOR_LIST_WITH_ONE_ELEMENT;
+import static ru.yandex.practicum.filmorate.constants.Constants.MAX_USERS_FOR_RECOMMENDATION;
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.LIKES;
 import static ru.yandex.practicum.filmorate.constants.FilmsSortBy.YEAR;
 import static ru.yandex.practicum.filmorate.constants.SearchParam.*;
@@ -275,6 +277,43 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY likes_count DESC";
         List<Film> films = jdbcTemplate.query(sql, new FilmMapper(), userId, friendId);
         return films;
+    }
+
+    @Override
+    public List<Film> getRecommendations(Integer id) {
+        String sql = "SELECT DISTINCT f.film_id, f.film_name, f.film_description, f.release_date, f.film_duration, " +
+                "m.mpas_id, m.mpas_name, " +
+                "g.genre_id, g.genre_name, " +
+                "d.director_id, d.director_name, " +
+                "COUNT(DISTINCT l.USER_ID) AS likes_count " +
+                "FROM films AS f " +
+                "LEFT JOIN MPAS AS m " +
+                "ON f.MPA_ID  = m.MPAS_ID " +
+                "INNER JOIN LIKES AS l " +
+                "ON f.film_id = l.film_id " +
+                "INNER JOIN (SELECT sf.user_id AS common_users FROM likes AS sf " +
+                "INNER JOIN LIKES  as uf " +
+                "ON sf.film_id = uf.film_id " +
+                "AND sf.user_id <> ? " +
+                "GROUP BY sf.user_id " +
+                "ORDER BY COUNT(sf.film_id) DESC " +
+                "LIMIT ?) AS rf " +
+                "ON l.user_id = rf.common_users " +
+                "LEFT OUTER JOIN (SELECT film_id AS films_to_remove FROM likes WHERE user_id = ?) AS rf " +
+                "ON f.film_id = rf.films_to_remove " +
+                "LEFT JOIN likes AS ef " +
+                "ON l.film_id = ef.film_id " +
+                "LEFT JOIN FILMS_DIRECTORS AS fd " +
+                "ON f.film_id = fd.film_id " +
+                "LEFT JOIN DIRECTOR AS d " +
+                "ON d.director_id = fd.director_id " +
+                "LEFT JOIN FILMS_GENRES AS fg " +
+                "ON f.film_id = fg.film_id " +
+                "LEFT JOIN GENRES AS g " +
+                "ON fg.genre_id = g.genre_id " +
+                "WHERE rf.films_to_remove IS NULL " +
+                "GROUP BY g.GENRE_ID;";
+        return jdbcTemplate.query(sql, new FilmMapper(), id, MAX_USERS_FOR_RECOMMENDATION, id);
     }
 
     @Override

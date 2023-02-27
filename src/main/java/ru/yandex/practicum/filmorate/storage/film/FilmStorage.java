@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.constants.SearchParam;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -29,4 +30,6 @@ public interface FilmStorage {
     List<Film> searchFilms(String query, SearchParam type);
 
     List<Film> getCommonFilms(Integer userId, Integer friendId);
+
+    List<Film> getRecommendations(Integer id);
 }
