@@ -1,9 +1,22 @@
-# java-filmorate
+# Filmorate (Фильмотека)
+REST приложение, с помощью которого пользователи могут добавлять фильмы и друг друга в друзья. Также оценивать фильмы в базе путем добавления лайков.
 
-Описание проекта в процессе оформления.
+# Стек технологий
+- Java
+- Spring Boot
+- Hibernate
+- PostgreSQL
+- JdbcTemplate
+- Apache Maven
+- Lombok
+- Postman
+- IntelliJ IDEA
+- DBeaver
 
-Template repository for Filmorate project.
+# Схема базы данных
 
-src/main/java/ru/yandex/practicum/filmorate/model - в этом пакете будут храниться классы, представляющие доменную модель (предметную область) приложения.
+![DB](https://github.com/avan-es/java-filmorate/assets/83888190/6446ba8d-dfff-4174-9e2c-45c4cb870a0a)
 
-[Ссылка](https://dbdiagram.io/d/63e1a2d3296d97641d7ee397) на схему БД.
+# Реализованные эндпоинты
+
+||
