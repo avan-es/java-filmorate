@@ -102,6 +102,14 @@
   </table>
   </p>
 
+## Запуск программы
 
+Для запуска приложения потребуется *** Java 11, IntelliJ IDEA.***
 
+Алгоритм:
+- Склонировать приложение в свой репозиторий или скачать на компьютер;
+- Открыть и запустить проект в ***IntelliJ IDEA***;
+
+### Для тестирования подготовлен файл коллекции Postman
+[Test Filmorate - Filmorate-Postman-Tests.postman_collection.json](https://github.com/avan-es/java-filmorate/blob/main/postman/Filmorate-Postman-Tests.postman_collection.json)
 
